@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login</title>
+    <title>Logowanie</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; }
         .login-container {
@@ -31,7 +31,8 @@
             {% endif %}
             <form method="post">
                 {% csrf_token %}
-                <input type="text" name="username" placeholder="Email" required>
+                <input type="hidden" name="form_type" value="login">
+                <input type="text" name="username" placeholder="Nazwa użytkownika" required>
                 <input type="password" name="password" placeholder="Hasło" required>
                 <input type="submit" value="Zaloguj">
                 <a href="#" onclick="change_panel()">Reset hasła</a>
@@ -47,6 +48,7 @@
             {% endif %}
             <form method="post">
                 {% csrf_token %}
+                <input type="hidden" name="form_type" value="reset">
                 <input type="text" name="username" placeholder="Email" required>
                 <input type="submit" value="Resetuj">
                 <a href="#" onclick="change_panel()">Zaloguj</a>
