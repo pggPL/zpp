@@ -27,14 +27,19 @@
 </head>
 <body>
     <div class="menu-bar">
-        <a href="#news">Przeglądaj linki</a>
-        <a href="#home">Dodaj plik</a>
-        <a href="#about">Wyloguj</a>
+        <a href="{% url 'index' %}">Przeglądaj linki</a>
+        <a href="{% url 'add_file' %}">Dodaj plik</a>
+        <a href="{% url 'logout' %}">Wyloguj</a>
     </div>
 
     <div class="content">
-        <h1>Witaj na Stronie Głównej</h1>
-        <p>Tutaj może być Twoja zawartość...</p>
+        <h1>Przesyłanie pliku z linkami</h1>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Wyślij plik</button>
+        </form>
+
     </div>
 </body>
 </html>

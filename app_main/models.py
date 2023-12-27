@@ -5,10 +5,10 @@ from django.contrib.auth.models import AbstractUser
 class Submission(models.Model):
     link = models.CharField(max_length=200)
     platform = models.ForeignKey("Platform", on_delete=models.CASCADE)
-    category = models.ForeignKey("SubmissionCategory", on_delete=models.CASCADE)
+    category = models.ForeignKey("SubmissionCategory", on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return self.platform.name + " - " + str(self.id)
 
 
 class Platform(models.Model):

@@ -23,17 +23,81 @@
         .content {
             padding: 20px;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-family: 'Arial', sans-serif;
+        }
+
+        th, td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .table-container {
+            overflow-x: scroll;
+            width: 60%;
+            margin: auto;
+        }
+
     </style>
 </head>
 <body>
     <div class="menu-bar">
-        <a href="#news">Przeglądaj linki</a>
-        <a href="#home">Dodaj plik</a>
+        <a href="{% url 'index' %}">Przeglądaj linki</a>
+        <a href="{% url 'add_file' %}">Dodaj plik</a>
         <a href="{% url 'logout' %}">Wyloguj</a>
     </div>
 
     <div class="content">
         <h1>Panel analityka</h1>
+
+        <div class="table-container">
+            <table>
+                <tr>
+                    <th>Platforma</th>
+                    <th>Link</th>
+                </tr>
+                {% for link in links %}
+                <tr>
+                    <td>{{ link.platform }}</td>
+                    <td><a href="{{ link.link }}" target="blank">{{ link.short_link }}</a></td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="pagination">
+            <span class="step-links">
+                {% if links.has_previous %}
+                    <a href="?page=1">&laquo; pierwsza</a>
+                    <a href="?page={{ links.previous_page_number }}">poprzednia</a>
+                {% endif %}
+
+                <span class="current">
+                    Strona {{ links.number }} z {{ links.paginator.num_pages }}.
+                </span>
+
+                {% if links.has_next %}
+                    <a href="?page={{ links.next_page_number }}">następna</a>
+                    <a href="?page={{ links.paginator.num_pages }}">ostatnia &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
     </div>
 </body>
 </html>
