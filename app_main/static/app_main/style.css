@@ -1,0 +1,101 @@
+body {
+    font-family: Arial,
+    sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+}
+.menu-bar {
+    background-color: #181818;
+    overflow: hidden;
+}
+.menu-bar a {
+    float: left;
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 20px;
+    text-decoration: none;
+}
+.menu-bar a:hover {
+    background-color: #282828;
+}
+.content {
+    padding: 20px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-family: 'Arial', sans-serif;
+}
+
+th, td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f2f2f2;
+    color: #333;
+}
+
+tr:hover {
+    background-color: #f5f5f5;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.table-container {
+    overflow-x: scroll;
+    width: 60%;
+    margin: auto;
+}
+
+.button-wrapper {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+button {
+    background-color: #181818;
+    color: white;
+    padding: 14px 20px;
+    margin: 10px;
+    border: none;
+    cursor: pointer;
+    display: block;
+}
+
+.form-container {
+    width: 60%;
+    margin: auto;
+}
+
+form {
+    margin: auto;
+    display: block;
+}
+
+input[type=text], input[type=password], input[type=email] {
+    width: 50%;
+    padding: 6px 6px;
+    font-size: 16px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+label {
+    font-weight: bold;
+    display: block;
+}
+
+p {
+    text-align: center;
+}
+select {
+    width: 30%;
+}

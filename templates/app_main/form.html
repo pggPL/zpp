@@ -1,0 +1,38 @@
+
+{% extends 'app_main/base.html' %}
+{% load static %}
+{% block content %}
+    <h1>{{ name }}</h1>
+
+    <div class="form-container">
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <p>
+                {{ field.label_tag }}<br>
+                {{ field }}
+                {% for error in field.errors %}
+                    <p style="color: red">{{ error }}</p>
+                {% endfor %}
+            </p>
+        {% endfor %}
+        <span class="button-wrapper">
+            {% if back_link %}
+                <button type="button" onclick="window.location.href='{% url back_link %}'">Powrót</button>
+            {% endif %}
+
+            <button type="submit">Zapisz zmiany</button>
+        </span>
+        {% if info %}
+            <div style="text-align: center">
+                {{ info }}
+            </div>
+        {% endif %}
+    </form></div>
+
+    <script>
+    $(document).ready(function() {
+        $('.js-example-basic-single').select2();
+    });
+    </script>
+{% endblock %}

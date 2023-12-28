@@ -1,11 +1,11 @@
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
-from app_main.forms import FileUploadForm
+from app_main.forms import FileUploadForm, ProfileForm
 import openpyxl
 
-from app_main.models import Submission, Platform
+from app_main.models import Submission, Platform, Profile
 from django.core.paginator import Paginator
 
 
@@ -72,3 +72,41 @@ def add_file_view(request):
 def logout_view(request):
     logout(request)
     return redirect("index")
+
+def accounts_list_view(request):
+    context = {
+        'users': Profile.objects.all()
+    }
+    return render(request, "app_main/accounts.html", context=context)
+
+def edit_account_view(request, pk):
+    obiekt = get_object_or_404(Profile, pk=pk)
+    if request.method == "POST":
+        form = ProfileForm(request.POST, instance=obiekt)
+        if form.is_valid():
+            form.save()
+            return redirect('accounts_list')
+    else:
+        form = ProfileForm(instance=obiekt)
+    return render(request, 'app_main/form.html', {'form': form, 'name': 'Edytuj konto'})
+
+def delete_account_view(request, pk):
+    # delete if there is no object connected to this account
+    account = get_object_or_404(Profile, pk=pk)
+    # if this is current user, logout
+    if account == request.user:
+        return HttpResponse("Nie możesz usunąć swojego konta")
+    account.delete()
+    return redirect('accounts_list')
+
+def add_account_view(request):
+    info_message = "Na podany adres email zostanie wysłane zaproszenie do rejestracji."
+    if request.method == "POST":
+        form = ProfileForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('accounts_list')
+    else:
+        form = ProfileForm()
+    return render(request, 'app_main/form.html',
+                  {'form': form, 'name': 'Dodaj konto', 'back_link': 'accounts_list', 'info': info_message})

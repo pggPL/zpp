@@ -1,0 +1,39 @@
+
+{% extends 'app_main/base.html' %}
+{% load static %}
+{% block content %}
+    <h1>Lista kont</h1>
+
+
+        <div class="table-container">
+            <table>
+                <tr>
+                    <th>Email</th>
+                    <th>Nazwa</th>
+                    <th>Ranga</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.rank }}</td>
+                    <td><a href="{% url 'edit_account' user.id %}"><img src="{% static 'app_main/pencil.png' %}" style="width: 20px"></a></td>
+                    <td><a href="javascript:del({{ user.id }})"><img src="{% static 'app_main/remove.png' %}" style="width: 20px"></a></td>
+                </tr>
+                {% endfor %}
+            </table>
+
+        </div>
+    <center>
+        <button style="margin: 10px" onclick="window.location.href = '{% url 'add_account' %}'">Dodaj nowe konto</button>
+    </center>
+    <script>
+        function del(id) {
+            if (confirm("Czy na pewno chcesz usunąć konto?")) {
+                window.location.href = "/delete_account/" + id;
+            }
+        }f
+    </script>
+{% endblock %}
