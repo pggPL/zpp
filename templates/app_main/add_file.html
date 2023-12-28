@@ -6,4 +6,12 @@
         {{ form.as_p }}
         <button type="submit">Wyślij plik</button>
     </form>
+    {% if message %}
+    <div>
+        {{ message }}
+        <p>
+            Plik zawierał <b>{{ total_links }}</b> linków, przy czym  <b>{{ total_unique_links }}</b> nie znajdowało się w bazie.
+        </p>
+    </div>
+    {% endif %}
 {% endblock %}

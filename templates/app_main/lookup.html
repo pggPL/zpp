@@ -1,0 +1,21 @@
+{% load static %}
+<center>
+<button class="button" onclick="window.location.href='{% url 'add_link' 'index' %}'">Dodaj link</button>
+</center>
+<table>
+    <tr>
+        <th>Platforma</th>
+        <th>Link</th>
+        <th></th>
+        <th></th>
+    </tr>
+    {% for link in links %}
+    <tr>
+        <td>{{ link.platform }}</td>
+        <td><a href="{{ link.link }}" target="blank">{{ link.short_link }}</a></td>
+        <td><a href="{% url 'edit_link' link.id "index" %}"><img src="{% static 'app_main/pencil.png' %}" style="width: 20px"></a></td>
+        <td><a href="javascript:del({{ link.id }})"><img src="{% static 'app_main/remove.png' %}" style="width: 20px"></a></td>
+
+    </tr>
+    {% endfor %}
+</table>

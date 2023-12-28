@@ -1,0 +1,26 @@
+{% extends 'app_main/base.html' %}
+
+{% block content %}
+
+    <div class="table-container">
+        <table>
+            <tr>
+                <th> Statystyka </th>
+                <th> Wartość </th>
+            </tr>
+            <tr>
+                <td> Liczba linków </td>
+                <td> {{ links_number }} </td>
+            </tr>
+            <tr>
+                <td> Liczba linków bez kategorii </td>
+                <td> {{ links_without_the_cathegory }} </td>
+            </tr>
+            <tr>
+                <td> Liczba linków z kategorią </td>
+                <td> {{ links_with_the_cathegory }} </td>
+            </tr>
+
+        </table>
+    </div>
+{% endblock %}
