@@ -135,12 +135,14 @@ html::-webkit-scrollbar {
 .box > .right {
     grid-column: 2;
     grid-row: 1;
+    overflow: scroll;
 }
 
 .one_link_panel {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: center;
     width: 100%;
     padding: 10px;
     margin: 0;
@@ -148,12 +150,26 @@ html::-webkit-scrollbar {
     box-sizing: border-box;
 }
 
+.one_link_panel > * {
+    text-align: center;
+    cursor: pointer;
+}
+
+.one_link_panel > form > select {
+    width: 150px;
+    height: 10px;
+}
+
 .done {
-    background-color: #b1c0a4;
+    background-color: #eefced;
 }
 
 .not_done {
-    background-color: #c7a9b7;
+    background-color: #ffe7e7;
+}
+
+.last-clicked {
+    background-color: #dbe2e5;
 }
 
 input[type=button] {

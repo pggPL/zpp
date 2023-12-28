@@ -29,7 +29,7 @@ def index(request):
     # if user is not logger, show login screen
     if not request.user.is_authenticated:
         return login_view(request)
-    return main_panel_view(request)
+    return link_list_view(request)
 
 def login_view(request):
     if request.method == 'POST':
@@ -38,7 +38,7 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return main_panel_view(request)  # Redirect to homepage or other page
+            return link_list_view(request)  # Redirect to homepage or other page
         else:
             # Invalid login
             return render(request, 'app_main/login.html', {'error': 'Niepoprawne dane logowania'})
@@ -46,8 +46,8 @@ def login_view(request):
         return render(request, 'app_main/login.html')
 
 @login_required
-def main_panel_view(request):
-    links_list = Submission.objects.all().order_by('link')
+def link_list_view(request):
+    links_list = Submission.objects.all().order_by('date')
     
     # Paginacja
     paginator = Paginator(links_list, 30)  # 10 linków na stronę
@@ -57,8 +57,9 @@ def main_panel_view(request):
     # Skracanie linku
     for link in links:
         link.short_link = link.link[:50] + "..." if len(link.link) > 50 else link.link
+        
     
-    return render(request, "app_main/main_panel.html", context={'links': links})
+    return render(request, "app_main/link_list.html", context={'links': links})
 
 @login_required
 def add_file_view(request):
@@ -69,10 +70,11 @@ def add_file_view(request):
             workbook = openpyxl.load_workbook(file)
             worksheet = workbook.active
             
-            total_links = worksheet.max_row - 1
+            total_links = 0
             total_unique_links = 0
 
             for row in worksheet.iter_rows(min_row=2, max_col=2, values_only=True):
+                total_links += 1
                 platform, link = row
                 
                 # check if link already exists in database
@@ -160,6 +162,12 @@ def link_panel_view(request):
         context['links_with_forms'].append({"form": form, "link": link, "done": link.category is not None})
     # sort links_with_forms by done
     context['links_with_forms'].sort(key=lambda x: x['done'])
+    
+    # paginacja
+    paginator = Paginator(context['links_with_forms'], 30)
+    page_number = request.GET.get('page')
+    context['links_with_forms'] = paginator.get_page(page_number)
+    
         
     return render(request, "app_main/link_panel.html", context=context)
 
@@ -230,7 +238,7 @@ def remove_category_view(request, pk):
 
 @login_required
 def lookup_view(request, phrase):
-    links = Submission.objects.filter(Q(link__icontains=phrase) | Q(platform__name__icontains=phrase)).order_by('link')
+    links = Submission.objects.filter(Q(link__icontains=phrase) | Q(platform__name__icontains=phrase)).order_by('date')
     for link in links:
         link.short_link = link.link[:50] + "..." if len(link.link) > 50 else link.link
     return render(request, 'app_main/lookup.html', {'links': links, 'phrase': phrase})

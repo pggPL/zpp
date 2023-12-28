@@ -12,8 +12,9 @@
     <span class="box">
         <span class="left">
             {% for link in links_with_forms %}
-                <span class="one_link_panel {% if link.done %} done {% else %} not_done {% endif %}">
-                    <div style="display: block; width: 300px; font-size: 12px"><a href="{{ link.link.link }}" target="new"> {{ link.link.short_link }}</a></div>
+                <span class="one_link_panel {% if link.done %} done {% else %} not_done {% endif %}" onclick="clicked({{ link.link.id }}, '{{ link.link.link }}')" id="one_link_panel_{{ link.link.id }}">
+                    <div style="display: block; width: 340px; font-size: 12px"><a href="{{ link.link.link }}" target="new"> {{ link.link.short_link }}</a></div>
+                    <span style="display: block; width: 300px; font-size: 12px; margin: 0 5px">{{ link.link.date }}</span>
 
                     <form method="post" style="width: 400px; display: block" id="form_{{ link.link.id }}">
                         {{ link.form.csrf_token }}
@@ -24,11 +25,28 @@
 
                     <span style="width: 200px; display: block">
                         <!--<input type="button" style="float: right" value="Pokaż" onclick="show('{{ link.link.link }}')"> !-->
-                        <input type="button" style="float: right" value="Edytuj" onclick="window.location.href = '/edit_link/{{ link.link.id }}/link_panel'">
                         <input type="button" style="float: right" value="Usuń" onclick="del({{ link.link.id }})">
+                        <input type="button" style="float: right" value="Edytuj" onclick="window.location.href = '/edit_link/{{ link.link.id }}/link_panel'">
+
                     </span>
                 </span>
             {% endfor %}
+
+            <div class="pagination">
+                {% if links_with_forms.has_previous %}
+                    <a href="?page=1" class="page-link">&laquo; pierwsza</a>
+                    <a href="?page={{ links_with_forms.previous_page_number }}" class="page-link">< poprzednia</a>
+                {% endif %}
+
+                <span class="current page-info">
+                    Strona {{ links_with_forms.number }} z {{ links_with_forms.paginator.num_pages }}.
+                </span>
+
+                {% if links_with_forms.has_next %}
+                    <a href="?page={{ links_with_forms.next_page_number }}" class="page-link">następna ></a>
+                    <a href="?page={{ links_with_forms.paginator.num_pages }}" class="page-link">ostatnia &raquo;</a>
+                {% endif %}
+            </div>
         </span>
         <span class="right" id="right">
             <center>
@@ -38,9 +56,37 @@
     </span>
 
     <script>
-    function show(link) {
+    function showFacebookPost(link) {
         document.getElementById('right').innerHTML = '<center><div class="fb-post" data-href="' + link + '" data-width="500" data-show-text="true"></div></center>';
         FB.XFBML.parse();
+    }
+
+    function showTwitterProfile(link) {
+        document.getElementById('right').innerHTML = '<center><a class="twitter-timeline" href="' + link +
+            '"></a> ' + '</center>';
+        twttr.widgets.load();
+    }
+
+    function showTwitterPost(link) {
+        document.getElementById('right').innerHTML = '<blockquote class="twitter-tweet"><a href="' + link +'"></a></blockquote>';
+        twttr.widgets.load();
+    }
+
+    function show(link) {
+        // check whether link is facebook post
+        if (link.includes('facebook.com/post')) {
+            showFacebookPost(link);
+        } else if (link.includes('twitter.com') && link.includes('/status/')) {
+            showTwitterPost(link);
+        } else if (link.includes('twitter.com')) {
+            showTwitterProfile(link);
+        }
+        else {
+            document.getElementById('right').innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%">' +
+                '<span>Wyświetl <a href="' + link + '" target="new">link</a> w przeglądarce</div></span>';
+        }
+
+
     }
 
     function del(id) {
@@ -48,9 +94,6 @@
             window.location.href = "/delete_link/" + id +"/link_panel";
         }
     }
-
-    var a;
-
     function  sendChange(e) {
         e.preventDefault()
         // get if of form that was changed
@@ -104,5 +147,18 @@
             $(this).change(sendChange);
         });
     });
+
+    function clicked(id, link) {
+        // remove last-clicked class from all elements
+        $('.one_link_panel').removeClass('last-clicked');
+
+        // add last-clicked class to clicked element
+        $('#one_link_panel_' + id).addClass('last-clicked');
+
+        // show
+        show(link)
+    }
     </script>
+
+    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 {% endblock %}
