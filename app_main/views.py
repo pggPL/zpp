@@ -1,7 +1,6 @@
 import os
 
 from django.contrib.auth import authenticate, login, logout
-import requests
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.db.models import Q
