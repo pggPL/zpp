@@ -13,7 +13,6 @@ import openpyxl
 
 from app_main.models import Submission, Platform, Profile, SubmissionCategory
 from django.core.paginator import Paginator
-from selenium import webdriver
 
 
 # decorator – require senior rank
