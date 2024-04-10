@@ -9,12 +9,25 @@
 {% block content %}
     <div id="fb-root"></div>
 <script async defer crossorigin="anonymous" src="https://connect.facebook.net/pl_PL/sdk.js#xfbml=1&version=v18.0" nonce="4yZKh3fW"></script>
-    <span class="box">
-        <span class="left">
+    <nav class = "link-panel-navbar">
+        <div class="search-bar">
+            <form style="width: 100%">
+                <input type="text" placeholder="Szukaj..." name="search" oninput="lookup()" id="search">
+            </form>
+        </div>
+        <div class="link-panel-navbar-item">
+            Sortowanie
+        </div>
+        <div class="link-panel-navbar-item">
+            Liczba na stronie
+        </div>
+    </nav>
+    <div class="box">
+        <div class="left">
             {% for link in links_with_forms %}
-                <span class="one_link_panel {% if link.done %} done {% else %} not_done {% endif %}" onclick="clicked({{ link.link.id }}, '{{ link.link.link }}')" id="one_link_panel_{{ link.link.id }}">
-                    <div style="display: block; width: 340px; font-size: 12px"><a href="{{ link.link.link }}" target="new"> {{ link.link.short_link }}</a></div>
-                    <span style="display: block; width: 300px; font-size: 12px; margin: 0 5px">{{ link.link.date }}</span>
+                <div class="one_link_panel {% if link.done %} done {% else %} not_done {% endif %}" onclick="clicked({{ link.link.id }}, '{{ link.link.link }}')" id="one_link_panel_{{ link.link.id }}">
+                    <div style="width: 340px; font-size: 12px"><a href="{{ link.link.link }}" target="new"> {{ link.link.short_link }}</a></div>
+                    <div style="width: 300px; font-size: 12px; margin: 0 5px">{{ link.link.date }}</div>
 
                     <form method="post" style="width: 400px; display: block;" id="form_{{ link.link.id }}">
                         {{ link.form.csrf_token }}
@@ -23,12 +36,12 @@
                         {% endfor %}
                     </form>
 
-                    <span style="width: 200px; display: block">
+                    <div style="width: 200px; display: block">
                         <input type="button" style="float: right" value="Usuń" onclick="del({{ link.link.id }})">
                         <input type="button" style="float: right" value="Edytuj" onclick="window.location.href = '/edit_link/{{ link.link.id }}/link_panel'">
 
-                    </span>
-                </span>
+                    </div>
+                </div>
             {% endfor %}
 
             <div class="pagination">
@@ -37,19 +50,19 @@
                     <a href="?page={{ links_with_forms.previous_page_number }}" class="page-link">< poprzednia</a>
                 {% endif %}
 
-                <span class="current page-info">
+                <div class="current page-info">
                     Strona {{ links_with_forms.number }} z {{ links_with_forms.paginator.num_pages }}.
-                </span>
+                </div>
 
                 {% if links_with_forms.has_next %}
                     <a href="?page={{ links_with_forms.next_page_number }}" class="page-link">następna ></a>
                     <a href="?page={{ links_with_forms.paginator.num_pages }}" class="page-link">ostatnia &raquo;</a>
                 {% endif %}
             </div>
-        </span>
-        <span class="right" id="right">
-        </span>
-    </span>
+        </div>
+        <div class="right" id="right">
+        </div>
+    </div>
 
     <script>
     function showFacebookPost(link) {
@@ -79,7 +92,7 @@
         }
         else {
             document.getElementById('right').innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%">' +
-                '<span>Wyświetl <a href="' + link + '" target="new">link</a> w przeglądarce</div></span>';
+                '<div>Wyświetl <a href="' + link + '" target="new">link</a> w przeglądarce</div></div>';
         }
 
 

@@ -201,3 +201,34 @@ input[type=button] {
     margin: 0 15px;
     font-size: 1.1em;
 }
+
+.center {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%);
+}
+
+/***** link-panel-navbar *****/
+
+.link-panel-navbar {
+    padding: 15px;
+    height: 50px;
+    background-color: deepskyblue;
+    display: flex;
+}
+
+.search-bar {
+    width: 40%;
+}
+
+
+.link-panel-navbar-item {
+    margin: 10px;
+
+}
+
+#search {
+    width: 100%;
+}
+
+
