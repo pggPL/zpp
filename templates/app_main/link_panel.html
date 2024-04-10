@@ -16,7 +16,7 @@
                     <div style="display: block; width: 340px; font-size: 12px"><a href="{{ link.link.link }}" target="new"> {{ link.link.short_link }}</a></div>
                     <span style="display: block; width: 300px; font-size: 12px; margin: 0 5px">{{ link.link.date }}</span>
 
-                    <form method="post" style="width: 400px; display: block" id="form_{{ link.link.id }}">
+                    <form method="post" style="width: 400px; display: block;" id="form_{{ link.link.id }}">
                         {{ link.form.csrf_token }}
                         {% for field in link.form %}
                             {{ field }}
