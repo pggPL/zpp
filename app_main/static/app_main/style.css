@@ -98,6 +98,7 @@ p {
 }
 select {
     width: 30%;
+    height: auto;
 }
 
 .box {
@@ -157,7 +158,7 @@ html::-webkit-scrollbar {
 
 .one_link_panel > form > select {
     width: 150px;
-    height: 10px;
+    height: auto;
 }
 
 .done {
