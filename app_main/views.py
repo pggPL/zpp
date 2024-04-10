@@ -161,7 +161,7 @@ def link_panel_view(request):
         form = LinkForm1(instance=link)
         context['links_with_forms'].append({"form": form, "link": link, "done": link.category is not None})
     # sort links_with_forms by done
-    context['links_with_forms'].sort(key=lambda x: x['done'])
+    # context['links_with_forms'].sort(key=lambda x: x['done'])
     
     # paginacja
     paginator = Paginator(context['links_with_forms'], 30)
