@@ -1,17 +1,68 @@
 {% extends 'app_main/base.html' %}
+{% load static %}
+
 {% block content %}
+    <link rel="stylesheet" href = {% static "app_main/read_file_styles.css" %} >
+    <script>
+        // Code to get csrf token took from djangoproject.com
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    
+        const csrftoken = getCookie('csrftoken');
+        
+        const confirm_add_file_url = "{% url 'confirm_add_file' %}";
+        const add_file_url = "{% url 'add_file' %}";
+    </script>
+    <script src = "{% static 'app_main/process_input_file.js' %}" ></script>
+    
     <h1>Przesyłanie pliku z linkami</h1>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Wyślij plik</button>
     </form>
+    
+    
     {% if message %}
-    <div>
+    <div class = "hide_after_data_added">
         {{ message }}
         <p>
             Plik zawierał <b>{{ total_links }}</b> linków, przy czym  <b>{{ total_unique_links }}</b> nie znajdowało się w bazie.
         </p>
     </div>
     {% endif %}
+    
+    {% if links_preview %}
+        <div class = "hide_after_data_added">
+            <div> Dane, które zostaną dodane do bazy: </div>
+            <button id="submit-after-preview"> zatwierdź </button>
+            <button id="cancel-after-preview"> anuluj </button>
+            <table class = "links_table">
+            <tr>
+                <th>Platform</th>
+                <th>Link</th>
+            </tr>
+            {% for data_row in links_preview %}
+                <tr>
+                    <td>{{ data_row.platform }}</td> 
+                    <td> {{  data_row.link }}</td>
+                </tr>
+            {% endfor %}
+            </table>
+        </div>
+    {% endif %}
+    
 {% endblock %}

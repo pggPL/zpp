@@ -4,14 +4,20 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.http import require_http_methods
 
 from app_main.forms import FileUploadForm, ProfileForm, LinkForm1, LinkForm2, ChangePasswordForm
 import openpyxl
 
 from app_main.models import Submission, Platform, Profile, SubmissionCategory
 from django.core.paginator import Paginator
+
+from app_main.read_file import read_links_file, save_to_db
+
+import json
+from django.http import JsonResponse
 
 
 # decorator – require senior rank
@@ -67,37 +73,40 @@ def add_file_view(request):
         form = FileUploadForm(request.POST, request.FILES)
         if form.is_valid():
             file = request.FILES['file']
-            workbook = openpyxl.load_workbook(file)
-            worksheet = workbook.active
-            
-            total_links = 0
-            total_unique_links = 0
+            data = read_links_file(file)
 
-            for row in worksheet.iter_rows(min_row=2, max_col=2, values_only=True):
-                total_links += 1
-                platform, link = row
-                
-                # check if link already exists in database
-                if Submission.objects.filter(link=link).exists():
-                    continue
-                total_unique_links += 1
-                
-                platform = Platform.objects.get_or_create(name=platform)[0]
-                
-                # create link in database
-                Submission.objects.get_or_create(link=link, platform=platform)
-            
             context = {
-                'total_links': total_links,
-                'total_unique_links': total_unique_links,
-                'message': 'Plik został dodany. ',
-                'form': form
+                'total_links': len(data),
+                'total_unique_links': len(data),
+                'message': 'Plik przeanalizowany. ',
+                'form': form,
+                'links_preview': data,
             }
 
             return render(request, "app_main/add_file.html", context)
     else:
         form = FileUploadForm()
     return render(request, "app_main/add_file.html", {'form': form})
+
+
+@login_required
+@require_http_methods(["POST"])
+def confirm_add_file(request):
+    """ This view accepts POST request with the actual data that should be saved in the database """
+
+    try:
+        data = json.loads(request.body)
+        save_to_db(data)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+        # return render(request, "app_main/add_file.html", {"data_add_attempt": "failure"})
+
+    return JsonResponse({'message': 'Data added successfully'}, status=200)
+    # return render(request, "app_main/add_file.html", {"data_add_attempt": "success"})
+
+
+
+
 
 @login_required
 def logout_view(request):

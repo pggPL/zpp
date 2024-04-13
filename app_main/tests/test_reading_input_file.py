@@ -1,6 +1,6 @@
 from django.test import TestCase
 from app_main.models import Submission, Platform
-from app_main.read_file import read_file
+from app_main.read_file import read_links_file
 import os
 
 
@@ -20,7 +20,7 @@ class ReadingInputFileTestCase(TestCase):
     def test_reading_correct_input_file(self):
         file_path = os.path.join(self.script_dir, "test_input_file.xlsx")
         with open(file_path, "rb") as file:
-            data = read_file(file)
+            data = read_links_file(file)
 
             self.assertEqual(data,
                              [('Facebook',
