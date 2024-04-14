@@ -7,7 +7,6 @@ from .views import logout_view
 urlpatterns = [
     path("", views.index, name="index"),
     path('logout/', logout_view, name='logout'),
-    path("add_file/", views.add_file_view, name="add_file"),
     path("accounts_list/", views.accounts_list_view, name="accounts_list"),
     path("edit_account/<int:pk>/", views.edit_account_view, name="edit_account"),
     path("delete_account/<int:pk>/", views.delete_account_view, name="delete_account"),
@@ -22,4 +21,8 @@ urlpatterns = [
     path("change_category/<int:pk>/", views.remove_category_view, name="remove_category"),
     path("lookup/<str:phrase>", views.lookup_view, name="lookup"),
     path("export/", views.export_view, name="export"),
+
+    # adding input file
+    path("add_file/", views.add_file_view, name="add_file"),
+    path("confirm_add_file/", views.confirm_add_file, name="confirm_add_file")
 ]
