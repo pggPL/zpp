@@ -173,7 +173,7 @@ def link_panel_view(request):
     # context['links_with_forms'].sort(key=lambda x: x['done'])
     
     # paginacja
-    paginator = Paginator(context['links_with_forms'], 30)
+    paginator = Paginator(context['links_with_forms'], request.user.get_links_per_page())
     page_number = request.GET.get('page')
     context['links_with_forms'] = paginator.get_page(page_number)
     
@@ -265,3 +265,17 @@ def export_view(request):
     response.content = output
     
     return response
+
+
+@login_required
+@require_http_methods(["GET"])
+def change_links_per_page_view(request):
+    new_count = request.GET.get("new_count")
+    request.user.set_links_per_page(new_count)
+    return redirect(link_panel_view)
+
+@login_required
+@require_http_methods(["GET"])
+def get_links_per_page_view(request):
+    n_links = request.user.get_links_per_page()
+    return JsonResponse({"links_per_page": n_links})

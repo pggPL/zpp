@@ -36,7 +36,16 @@ class Profile(AbstractUser):
         choices=RankChoices.choices,
         default=RankChoices.JUNIOR,
     )
+
+    links_per_page = models.IntegerField(default=10)
+
+    def get_links_per_page(self):
+        return self.links_per_page
+
+    def set_links_per_page(self, links_per_page):
+        self.links_per_page = links_per_page
+        self.save()
     
     def __str__(self):
         return self.username
-    
+

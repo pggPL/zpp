@@ -1,4 +1,5 @@
 {% extends 'app_main/base.html' %}
+{% load static %}
 
 {% block style %}
     .content {
@@ -9,21 +10,44 @@
 {% block content %}
     <div id="fb-root"></div>
 <script async defer crossorigin="anonymous" src="https://connect.facebook.net/pl_PL/sdk.js#xfbml=1&version=v18.0" nonce="4yZKh3fW"></script>
-    <nav class = "link-panel-navbar">
-        <div class="search-bar">
-            <form style="width: 100%">
-                <input type="text" placeholder="Szukaj..." name="search" oninput="lookup()" id="search">
-            </form>
-        </div>
-        <div class="link-panel-navbar-item">
-            Sortowanie
-        </div>
-        <div class="link-panel-navbar-item">
-            Liczba na stronie
-        </div>
-    </nav>
-    <div class="box">
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    
+    <script type="importmap">
+        {
+          "imports": {
+            "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
+          }
+        }
+    </script>
+    
+    <div id = "link-panel-content" class="box">
         <div class="left">
+        
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <div class="d-flex w-100 justify-content-between align-items-center">
+                        <form class="flex-grow-1 me-2">
+                            <input class="form-control" type="search" placeholder="Search items"
+                                   aria-label="Search items">
+                        </form>
+                        <select class="form-select me-2" style="width: auto;" aria-label="Sort items" >
+                            <option selected>Sort by</option>
+                            <option value="1">Name</option>
+                            <option value="2">Price</option>
+                            <option value="3">Date</option>
+                        </select>
+                        <select class="form-select" style="width: auto;" aria-label="Items per page"
+                                v-model="selected_item" @change="onItemsPerPageChange">
+                            <option value="5" >5 items</option>
+                            <option value="10">10 items</option>
+                            <option value="20">20 items</option>
+                            <option value="50">50 items</option>
+                        </select>
+                    </div>
+                </div>
+            </nav>
+            
             {% for link in links_with_forms %}
                 <div class="one_link_panel {% if link.done %} done {% else %} not_done {% endif %}" onclick="clicked({{ link.link.id }}, '{{ link.link.link }}')" id="one_link_panel_{{ link.link.id }}">
                     <div style="width: 340px; font-size: 12px"><a href="{{ link.link.link }}" target="new"> {{ link.link.short_link }}</a></div>
@@ -64,6 +88,49 @@
         </div>
     </div>
 
+    <script type="module">
+        import {createApp, ref} from 'vue'
+
+        async function getItemsPerPage(selected_item) {
+            await fetch(get_links_per_page_url)
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error("Network response was not ok.")
+                    }
+                }).then(data => {
+                    console.log(data["links_per_page"])
+                    selected_item.value = data["links_per_page"]
+
+            }).catch(error => {
+                console.error("Error:", error);
+            })
+
+        }
+        
+        createApp({
+            setup() {
+                const selected_item = ref(0);
+                
+                // Download the number of links per page from the server
+                // and fill the variable selected_item to change form view
+                getItemsPerPage(selected_item)
+                
+                const onItemsPerPageChange = () => {
+                    console.log("item has changed: " + selected_item.value)
+                    window.location.href = `${change_links_per_page_url}?new_count=${selected_item.value}`
+                }
+                
+                return {
+                    selected_item, onItemsPerPageChange
+                }
+            },
+            delimiters: ['[[', ']]'],
+        }).mount('#link-panel-content')
+    </script>
+    
+    
     <script>
     function showFacebookPost(link) {
         document.getElementById('right').innerHTML = '<center><div class="fb-post" data-href="' + link + '" data-width="500" data-show-text="true"></div></center>';
@@ -170,4 +237,7 @@
     </script>
 
     <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+    
+{#    <script src = "{% static 'app_main/link_panel_vue.js' %}" ></script>#}
+    
 {% endblock %}
