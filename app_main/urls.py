@@ -29,5 +29,7 @@ urlpatterns = [
     # link panel
     path("link_panel/", views.link_panel_view, name="link_panel"),
     path("change_links_per_page/", views.change_links_per_page_view, name="change_links_per_page"),
-    path("get_links_per_page/", views.get_links_per_page_view, name="get_links_per_page")
+    path("get_links_per_page/", views.get_links_per_page_view, name="get_links_per_page"),
+    path("search_link_panel/", views.search_link_panel_view, name="search_link_panel"),
+
 ]

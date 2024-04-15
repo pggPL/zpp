@@ -3,10 +3,13 @@ import os
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
+from django.core.serializers import serialize
 from django.db.models import Q
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from app_main.forms import FileUploadForm, ProfileForm, LinkForm1, LinkForm2, ChangePasswordForm
 import openpyxl
@@ -19,6 +22,8 @@ from app_main.read_file import read_links_file, save_to_db
 import json
 from django.http import JsonResponse
 
+from app_main.serializers import SubmissionSerializer
+
 
 # decorator – require senior rank
 def senior_required(view_func):
@@ -27,8 +32,8 @@ def senior_required(view_func):
             return view_func(request, *args, **kwargs)
         else:
             return HttpResponse("Nie masz uprawnień do wykonania tej akcji")
-    return wrapper
 
+    return wrapper
 
 
 def index(request):
@@ -36,6 +41,7 @@ def index(request):
     if not request.user.is_authenticated:
         return login_view(request)
     return link_list_view(request)
+
 
 def login_view(request):
     if request.method == 'POST':
@@ -51,21 +57,22 @@ def login_view(request):
     else:
         return render(request, 'app_main/login.html')
 
+
 @login_required
 def link_list_view(request):
     links_list = Submission.objects.all().order_by('date')
-    
+
     # Paginacja
     paginator = Paginator(links_list, 30)  # 10 linków na stronę
     page_number = request.GET.get('page')
     links = paginator.get_page(page_number)
-    
+
     # Skracanie linku
     for link in links:
         link.short_link = link.link[:50] + "..." if len(link.link) > 50 else link.link
-        
-    
+
     return render(request, "app_main/link_list.html", context={'links': links})
+
 
 @login_required
 def add_file_view(request):
@@ -105,13 +112,11 @@ def confirm_add_file(request):
     # return render(request, "app_main/add_file.html", {"data_add_attempt": "success"})
 
 
-
-
-
 @login_required
 def logout_view(request):
     logout(request)
     return redirect("index")
+
 
 @senior_required
 def accounts_list_view(request):
@@ -119,6 +124,7 @@ def accounts_list_view(request):
         'users': Profile.objects.all()
     }
     return render(request, "app_main/accounts.html", context=context)
+
 
 @senior_required
 def edit_account_view(request, pk):
@@ -132,6 +138,7 @@ def edit_account_view(request, pk):
         form = ProfileForm(instance=obiekt)
     return render(request, 'app_main/form.html', {'form': form, 'name': 'Edytuj konto'})
 
+
 @senior_required
 def delete_account_view(request, pk):
     # delete if there is no object connected to this account
@@ -141,6 +148,7 @@ def delete_account_view(request, pk):
         return HttpResponse("Nie możesz usunąć swojego konta")
     account.delete()
     return redirect('accounts_list')
+
 
 @senior_required
 def add_account_view(request):
@@ -155,36 +163,38 @@ def add_account_view(request):
     return render(request, 'app_main/form.html',
                   {'form': form, 'name': 'Dodaj konto', 'back_link': 'accounts_list', 'info': info_message})
 
+
 @login_required
 def link_panel_view(request):
     context = {
         'links_with_forms': []
     }
-    
+
     submissions = Submission.objects.all()
 
     for link in submissions:
         link.short_link = link.link[:30] + "..." if len(link.link) > 30 else link.link
-    
+
     for link in submissions:
         form = LinkForm1(instance=link)
         context['links_with_forms'].append({"form": form, "link": link, "done": link.category is not None})
     # sort links_with_forms by done
     # context['links_with_forms'].sort(key=lambda x: x['done'])
-    
+
     # paginacja
     paginator = Paginator(context['links_with_forms'], request.user.get_links_per_page())
     page_number = request.GET.get('page')
     context['links_with_forms'] = paginator.get_page(page_number)
-    
-        
+
     return render(request, "app_main/link_panel.html", context=context)
+
 
 @login_required
 def delete_link_view(request, pk, action):
     link = get_object_or_404(Submission, pk=pk)
     link.delete()
     return redirect(action)
+
 
 @login_required
 def edit_link_view(request, pk, action):
@@ -198,6 +208,7 @@ def edit_link_view(request, pk, action):
         form = LinkForm2(instance=obiekt)
     return render(request, 'app_main/form.html', {'form': form, 'name': 'Edytuj link'})
 
+
 @login_required
 def add_link_view(request, action):
     if request.method == "POST":
@@ -208,6 +219,7 @@ def add_link_view(request, action):
     else:
         form = LinkForm2()
     return render(request, 'app_main/form.html', {'form': form, 'name': 'Dodaj link'})
+
 
 @login_required
 def change_password_view(request):
@@ -220,6 +232,7 @@ def change_password_view(request):
         form = ChangePasswordForm(request.user)
     return render(request, 'app_main/form.html', {'form': form, 'name': 'Zmień hasło'})
 
+
 @login_required
 def stats_view(request):
     context = {
@@ -228,6 +241,7 @@ def stats_view(request):
         'links_with_the_cathegory': len(Submission.objects.exclude(category=None)),
     }
     return render(request, 'app_main/stats.html', context=context)
+
 
 @login_required
 def change_category_view(request, pk, category):
@@ -257,13 +271,13 @@ def lookup_view(request, phrase):
 def export_view(request):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="links.txt"'
-    
+
     output = ""
     for link in Submission.objects.all():
         if link.category is not None and link.category is not None:
             output += link.link + "(" + link.platform.name + ", " + link.category.name + ")\n"
     response.content = output
-    
+
     return response
 
 
@@ -274,8 +288,36 @@ def change_links_per_page_view(request):
     request.user.set_links_per_page(new_count)
     return redirect(link_panel_view)
 
+
 @login_required
 @require_http_methods(["GET"])
 def get_links_per_page_view(request):
     n_links = request.user.get_links_per_page()
     return JsonResponse({"links_per_page": n_links})
+
+
+@login_required
+@api_view(['GET'])
+def search_link_panel_view(request):
+    phrase = request.GET.get("phrase")
+    print(phrase)
+    links = Submission.objects.filter(Q(link__icontains=phrase) | Q(platform__name__icontains=phrase)).order_by('date')
+    for link in links:
+        link.short_link = link.link[:50] + "..." if len(link.link) > 50 else link.link
+
+    # links = list(links)
+    # print(links)
+    # return search result
+
+    # json_links = serialize('json', links)
+    #
+    # print(json_links)
+    #
+    # links_as_dicts = [{"link": l.link, "short_link": l.short_link, "platform": l.platform.name, "date": l.date} for l in links]
+
+    serializer = SubmissionSerializer(links, many=True)
+    return Response(serializer.data)
+
+    # return JsonResponse()
+
+    # return render(request, 'app_main/lookup.html', {'links': links, 'phrase': phrase})

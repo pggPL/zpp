@@ -29,7 +29,7 @@
                     <div class="d-flex w-100 justify-content-between align-items-center">
                         <form class="flex-grow-1 me-2">
                             <input class="form-control" type="search" placeholder="Search items"
-                                   aria-label="Search items">
+                                   aria-label="Search items" v-model="search_input" @input="onSearchInput">
                         </form>
                         <select class="form-select me-2" style="width: auto;" aria-label="Sort items" >
                             <option selected>Sort by</option>
@@ -48,6 +48,12 @@
                 </div>
             </nav>
             
+            {# search links view #}
+            <div v-if="search_input.length !== 0">
+                search results
+            </div>
+            {# Normal links view #}
+            <div v-else >
             {% for link in links_with_forms %}
                 <div class="one_link_panel {% if link.done %} done {% else %} not_done {% endif %}" onclick="clicked({{ link.link.id }}, '{{ link.link.link }}')" id="one_link_panel_{{ link.link.id }}">
                     <div style="width: 340px; font-size: 12px"><a href="{{ link.link.link }}" target="new"> {{ link.link.short_link }}</a></div>
@@ -67,6 +73,7 @@
                     </div>
                 </div>
             {% endfor %}
+            </div>
 
             <div class="pagination">
                 {% if links_with_forms.has_previous %}
@@ -112,10 +119,24 @@
         createApp({
             setup() {
                 const selected_item = ref(0);
+                const search_input = ref("");
+                const search_results = ref(null)
+                
                 
                 // Download the number of links per page from the server
                 // and fill the variable selected_item to change form view
                 getItemsPerPage(selected_item)
+                
+                const onSearchInput = () => {
+                    let params = {phrase: search_input.value}
+                    axios.get(search_link_panel_url, {params})
+                        .then(response => {
+                            console.log(response.data);
+                        })
+                        .catch(error => {
+                            console.error("Error downloading search result.", error);
+                        })
+                }
                 
                 const onItemsPerPageChange = () => {
                     console.log("item has changed: " + selected_item.value)
@@ -123,7 +144,7 @@
                 }
                 
                 return {
-                    selected_item, onItemsPerPageChange
+                    selected_item, onItemsPerPageChange, search_input, onSearchInput
                 }
             },
             delimiters: ['[[', ']]'],
@@ -174,9 +195,6 @@
         e.preventDefault()
         // get if of form that was changed
         let id = $(this).parent().attr('id').split('_')[1]
-
-        let crsf = $(this).parent().children()
-        console.log(crsf)
 
         // send ajax add category request
         $.ajax({
