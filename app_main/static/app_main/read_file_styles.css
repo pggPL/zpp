@@ -8,8 +8,10 @@
 
 }
 
-.after-preview-button{
+button .after-preview-button{
     display: inline-block;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 .after-preview-header {

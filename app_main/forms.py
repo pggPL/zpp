@@ -7,7 +7,9 @@ from app_main.models import Profile, Submission
 
 
 class FileUploadForm(forms.Form):
-    file = forms.FileField(validators=[FileExtensionValidator(['xlsx'])])
+    file = forms.FileField(validators=[FileExtensionValidator(['xlsx'])], 
+                           label="Wybierz plik .xslx",
+                           widget=forms.ClearableFileInput(attrs={'class': 'form-control'}))
 
 
 

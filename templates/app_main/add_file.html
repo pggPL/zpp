@@ -1,8 +1,11 @@
 {% extends 'app_main/base.html' %}
 {% load static %}
 
-{% block content %}
+{% block head %}
     <link rel="stylesheet" href = {% static "app_main/read_file_styles.css" %} >
+{% endblock %}
+
+{% block content %}
     <script>
         // Code to get csrf token took from djangoproject.com
         function getCookie(name) {
@@ -30,11 +33,13 @@
     <script src = "{% static 'app_main/process_input_file.js' %}" ></script>
     
     <h1>Przesyłanie pliku z linkami</h1>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Wyślij plik</button>
-    </form>
+    <div class="container d-flex w-50">
+        <form method="post" enctype="multipart/form-data" class="d-flex flex-column align-items-center">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" style="width: fit-content;">Wyślij plik</button>
+        </form>
+    </div>
     
     
     {% if message %}
@@ -48,8 +53,10 @@
     
     {% if links_preview %}
         <div class = "hide_after_data_added">
-            <button id="submit-after-preview" class="after-preview-button"> zatwierdź </button>
-            <button id="cancel-after-preview" class="after-preview-button"> anuluj </button>
+            <div class="d-flex justify-content-center">
+                <button id="submit-after-preview" class="after-preview-button"> Zatwierdź </button>
+                <button id="cancel-after-preview" class="after-preview-button"> Anuluj </button>
+            </div>
             <h3 class = "after-preview-header"> Dane, które zostaną dodane do bazy: </h3>
             <table class = "links_table">
             <tr>
