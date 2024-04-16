@@ -24,16 +24,43 @@
     {% block head %}
     {% endblock %}
 
-    {# Place to add urls #}
+    
     <script>
+        // Place to add urls 
         const change_links_per_page_url = "{% url 'change_links_per_page' %}";
-        const get_links_per_page_url = "{% url 'get_links_per_page' %}"
+        const get_links_per_page_url = "{% url 'get_links_per_page' %}";
         
-        const with_placeholder_lookup_url = "{% url 'lookup' 'PLACEHOLDER'%}"
+        const with_placeholder_lookup_url = "{% url 'lookup' 'PLACEHOLDER'%}";
         // Now the lookup url only needs a lookup phrase to be added at the end
-        const lookup_url = with_placeholder_lookup_url.replace("PLACEHOLDER", "")
+        const lookup_url = with_placeholder_lookup_url.replace("PLACEHOLDER", "");
         
-        const search_link_panel_url = "{% url 'search_link_panel' %}"
+        const search_link_panel_url = "{% url 'search_link_panel' %}";
+        
+        const with_placeholder_edit_link_url 
+            = "{% url 'edit_link' '999999' 'link_panel' %}".replace("999999", "PLACEHOLDER");
+        
+        const edit_link_url = (id) => {
+            return with_placeholder_edit_link_url.replace("PLACEHOLDER", id.toString());
+        }
+        
+        // Code to get csrf token took from djangoproject.com
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        const csrftoken = getCookie('csrftoken');
         
     </script>
 

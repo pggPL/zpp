@@ -50,7 +50,47 @@
             
             {# search links view #}
             <div v-if="search_input.length !== 0">
-                search results
+                <div v-if="search_results === null">
+                    Ładowanie wyników wyszukiwania...
+                </div>
+                <div v-else-if="search_results.length === 0">
+                    Podana fraza nie została znaleziona.
+                </div>
+                <div v-else class="container mt-2">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th scope="col">Link</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        
+                        
+                        <tr v-for="(link, index) in search_results">
+                            <td><a :href="link.link"> [[link.short_link]] </a></td>
+                            <td>[[link.date]]</td>
+                            <td>
+                                <select class="form-select" v-model="link.category.id">
+                                    <option value="-1">Brak Kategorii</option>
+                                    
+                                    
+                                    <option value="1">Category 1</option>
+                                    <option value="2">Category 2</option>
+                                    <option value="3">Category 3</option>
+                                </select>
+                            </td>
+                            <td>
+                                <button class="btn btn-primary btn-sm me-2" onclick="window.location.href = edit_link_url(link.id)">Edit</button>
+                                <button class="btn btn-danger btn-sm" @click="delLink(link.id)">Delete</button>
+                            </td>
+                        </tr>
+                        <!-- Repeat rows here as needed -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
             {# Normal links view #}
             <div v-else >
@@ -98,6 +138,11 @@
     <script type="module">
         import {createApp, ref} from 'vue'
 
+        function truncateString(str, max_len) {
+            return str.length > max_len ? str.substring(0, max_len - 3) + "..." : str
+        }
+        function truncateLink(link) { return truncateString(link, 30); }
+        
         async function getItemsPerPage(selected_item) {
             await fetch(get_links_per_page_url)
                 .then(response => {
@@ -122,15 +167,32 @@
                 const search_input = ref("");
                 const search_results = ref(null)
                 
+
                 
                 // Download the number of links per page from the server
                 // and fill the variable selected_item to change form view
                 getItemsPerPage(selected_item)
                 
+                const delLink = del;
+                
                 const onSearchInput = () => {
+                    // If the user just deleted last char, return.
+                    if (!search_input.value) {
+                        search_results.value = null;
+                        return;
+                    }
+                    
                     let params = {phrase: search_input.value}
                     axios.get(search_link_panel_url, {params})
                         .then(response => {
+                            // Truncate links and add special category for submissions with no category specified
+                            response.data.forEach((elem) => { 
+                                elem.short_link = truncateLink(elem.link);
+                                if (elem.category === null) {
+                                    elem.category = {id: -1, name: ""};
+                                }
+                            })
+                            search_results.value = response.data;
                             console.log(response.data);
                         })
                         .catch(error => {
@@ -144,15 +206,12 @@
                 }
                 
                 return {
-                    selected_item, onItemsPerPageChange, search_input, onSearchInput
+                    selected_item, onItemsPerPageChange, search_input, onSearchInput, search_results, delLink
                 }
             },
             delimiters: ['[[', ']]'],
         }).mount('#link-panel-content')
-    </script>
-    
-    
-    <script>
+
     function showFacebookPost(link) {
         document.getElementById('right').innerHTML = '<center><div class="fb-post" data-href="' + link + '" data-width="500" data-show-text="true"></div></center>';
         FB.XFBML.parse();
@@ -217,22 +276,7 @@
         })
     }
 
-    function getCookie(name) {
-    let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
 
-    const csrftoken = getCookie('csrftoken');
 
     // on load
     $(document).ready(function() {
