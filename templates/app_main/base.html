@@ -43,6 +43,12 @@
             return with_placeholder_edit_link_url.replace("PLACEHOLDER", id.toString());
         }
         
+        const change_category_url = (id, new_category_id) => {
+            return "{% url 'change_category' '999999' 'PLACEHOLDER' %}"
+                .replace('999999', id).replace("PLACEHOLDER", new_category_id);
+        }
+        
+        
         // Code to get csrf token took from djangoproject.com
         function getCookie(name) {
             let cookieValue = null;
@@ -62,8 +68,21 @@
         
         const csrftoken = getCookie('csrftoken');
         
+        console.log(csrftoken)
+        
+        axios.defaults.headers.common['X-CSRFToken'] = csrftoken;
+        
     </script>
 
+    <script type="importmap">
+        {
+          "imports": {
+            "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
+          }
+        }
+    </script>
+
+    <script src = "{% static 'app_main/utils.js' %}"></script>
     
 </head>
 <body>

@@ -13,13 +13,7 @@
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     
-    <script type="importmap">
-        {
-          "imports": {
-            "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
-          }
-        }
-    </script>
+
     
     <div id = "link-panel-content" class="box">
         <div class="left">
@@ -71,15 +65,12 @@
                         
                         <tr v-for="(link, index) in search_results">
                             <td><a :href="link.link"> [[link.short_link]] </a></td>
-                            <td>[[link.date]]</td>
+                            <td>[[link.readable_date]]</td>
                             <td>
-                                <select class="form-select" v-model="link.category.id">
-                                    <option value="-1">Brak Kategorii</option>
-                                    
-                                    
-                                    <option value="1">Category 1</option>
-                                    <option value="2">Category 2</option>
-                                    <option value="3">Category 3</option>
+                                <select  class="form-select" v-model="link.category.id" @change="onCategoryChange(link)">
+                                    <option v-for="category in categories" :value="category.id">
+                                        [[ category.name ]]
+                                    </option>
                                 </select>
                             </td>
                             <td>
@@ -138,10 +129,7 @@
     <script type="module">
         import {createApp, ref} from 'vue'
 
-        function truncateString(str, max_len) {
-            return str.length > max_len ? str.substring(0, max_len - 3) + "..." : str
-        }
-        function truncateLink(link) { return truncateString(link, 30); }
+
         
         async function getItemsPerPage(selected_item) {
             await fetch(get_links_per_page_url)
@@ -161,19 +149,42 @@
 
         }
         
+        function getCategories(categories) {
+            axios.get("/api/categories")
+                .then(response => {
+                    console.log(response.data);
+                    categories.value = response.data;
+                    })
+                .catch(error => {
+                    console.error("Error getting categories.", error);
+                })
+            
+        }
+        
+        
+        
+        
         createApp({
             setup() {
                 const selected_item = ref(0);
                 const search_input = ref("");
                 const search_results = ref(null)
-                
+                const categories = ref(null)
 
+                // Load categories
+                getCategories(categories);
                 
                 // Download the number of links per page from the server
                 // and fill the variable selected_item to change form view
                 getItemsPerPage(selected_item)
                 
                 const delLink = del;
+                
+                const onCategoryChange = (link) => {
+                    axios.post(change_category_url(link.id, link.category.id))
+                        .then(response => { console.log(response.data); })
+                        .catch(error => {console.error("Error during changing category", error)})
+                }
                 
                 const onSearchInput = () => {
                     // If the user just deleted last char, return.
@@ -188,9 +199,7 @@
                             // Truncate links and add special category for submissions with no category specified
                             response.data.forEach((elem) => { 
                                 elem.short_link = truncateLink(elem.link);
-                                if (elem.category === null) {
-                                    elem.category = {id: -1, name: ""};
-                                }
+                                elem.readable_date = showDate(elem.date);
                             })
                             search_results.value = response.data;
                             console.log(response.data);
@@ -206,7 +215,8 @@
                 }
                 
                 return {
-                    selected_item, onItemsPerPageChange, search_input, onSearchInput, search_results, delLink
+                    selected_item, onItemsPerPageChange, search_input, onSearchInput,
+                    search_results, delLink, categories, onCategoryChange
                 }
             },
             delimiters: ['[[', ']]'],
