@@ -302,8 +302,8 @@ def search_link_panel_view(request):
     phrase = request.GET.get("phrase")
     print(phrase)
     links = Submission.objects.filter(Q(link__icontains=phrase) | Q(platform__name__icontains=phrase)).order_by('date')
-    for link in links:
-        link.short_link = link.link[:50] + "..." if len(link.link) > 50 else link.link
+    # for link in links:
+    #     link.short_link = link.link[:50] + "..." if len(link.link) > 50 else link.link
 
     # links = list(links)
     # print(links)
@@ -315,7 +315,11 @@ def search_link_panel_view(request):
     #
     # links_as_dicts = [{"link": l.link, "short_link": l.short_link, "platform": l.platform.name, "date": l.date} for l in links]
 
+    print(links)
+
     serializer = SubmissionSerializer(links, many=True)
+    print(serializer.data)
+
     return Response(serializer.data)
 
     # return JsonResponse()
