@@ -5,8 +5,9 @@ from django.contrib.auth.models import AbstractUser
 class Submission(models.Model):
     link = models.CharField(max_length=200)
     platform = models.ForeignKey("Platform", on_delete=models.CASCADE)
-    category = models.ForeignKey("SubmissionCategory", on_delete=models.CASCADE, null=True, blank=True)
+    category = models.ForeignKey("SubmissionCategory", on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
+    report_count = models.IntegerField(default=1)
 
     def __str__(self):
         return self.platform.name + " - " + str(self.id)
@@ -20,7 +21,7 @@ class Platform(models.Model):
 
 
 class SubmissionCategory(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, default="brak kategorii")
 
     def __str__(self):
         return self.name

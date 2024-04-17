@@ -6,6 +6,15 @@
 {% endblock %}
 
 {% block content %}
+    <style>
+        tr.red {
+            background-color: #fc6f65;
+        }
+
+        tr.red:nth-child(even) {
+            background-color: #f85e53;
+        }
+    </style>
     <script>
         
         const confirm_add_file_url = "{% url 'confirm_add_file' %}";
@@ -22,32 +31,35 @@
             <button type="submit" style="width: fit-content;">Wyślij plik</button>
         </form>
     </div>
-    
-    
     {% if message %}
-    <div class = "hide_after_data_added">
-        {{ message }}
-        <p>
-            Plik zawierał <b>{{ total_links }}</b> linków, przy czym  <b>{{ total_unique_links }}</b> nie znajdowało się w bazie.
-        </p>
-    </div>
+        <div class = "hide_after_data_added">
+            <p>
+                {{ message }}
+            </p>
+        </div>
     {% endif %}
     
-    {% if links_preview %}
+    {% if new_links_preview or other_links_preview %}
         <div class = "hide_after_data_added">
+            <h3 class = "after-preview-header mt-2 mb-2"> Dane, które zostaną dodane do bazy: </h3>
             <div class="d-flex justify-content-center">
-                <button id="submit-after-preview" class="after-preview-button"> Zatwierdź </button>
-                <button id="cancel-after-preview" class="after-preview-button"> Anuluj </button>
+                <button id="submit-after-preview" class="d-inline-block me-2 mb-2 mt-2"> Zatwierdź </button>
+                <button id="cancel-after-preview" class="d-inline-block ms-2 mb-2 mt-2"> Anuluj </button>
             </div>
-            <h3 class = "after-preview-header"> Dane, które zostaną dodane do bazy: </h3>
             <table class = "links_table">
             <tr>
                 <th>Platform</th>
                 <th>Link</th>
             </tr>
-            {% for data_row in links_preview %}
+            {% for data_row in new_links_preview %}
                 <tr>
                     <td>{{ data_row.platform }}</td> 
+                    <td> {{  data_row.link }}</td>
+                </tr>
+            {% endfor %}
+            {% for data_row in other_links_preview %}
+                <tr class="red">
+                    <td>{{ data_row.platform }}</td>
                     <td> {{  data_row.link }}</td>
                 </tr>
             {% endfor %}
