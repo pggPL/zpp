@@ -24,6 +24,7 @@
     
     <script>
         let page_number = {{ page_number }};
+        const no_category_name = "Brak Kategorii";
     </script>
     
     
@@ -83,11 +84,11 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr @click="showLink(link)" v-for="(link, index) in links_to_show">
+                    <tr @click="showLink(link)" v-for="(link, index) in links_to_show_computed" :key="link.id">
                         <td><a :href="link.link"> [[link.short_link]] </a></td>
                         <td>[[link.readable_date]]</td>
                         <td>
-                            <select class="form-select" v-model="link.category.id" @change="onCategoryChange(link)">
+                            <select class="form-select" :class="{'border-3 border-success': link.show_border}" v-model="link.category.id" @change="onCategoryChange(link)">
                                 <option v-for="category in categories" :value="category.id">
                                     [[ category.name ]]
                                 </option>
@@ -189,7 +190,7 @@
     </div>
 
     <script type="module">
-        import {createApp, ref} from 'vue'
+        import {createApp, ref, computed} from 'vue'
 
 
         
@@ -211,12 +212,21 @@
 
         }
         
-        function getCategories(categories) {
+        function getCategories(categories, no_category_id) {
             axios.get("/api/categories")
                 .then(response => {
                     console.log(response.data);
+                    for (let category of response.data) {
+                        if (category.name === no_category_name) {
+                            no_category_id.value = category.id;
+                            break;
+                        }
+                    }
+                    if (no_category_id.value < 0) {
+                        console.error(`"${no_category_name}" was not found in loaded categories`)
+                    }
                     categories.value = response.data;
-                    })
+                })
                 .catch(error => {
                     console.error("Error getting categories.", error);
                 })
@@ -239,9 +249,24 @@
                 
                 const categories = ref(null)
                 
+                // Id of category which is "no category"
+                const no_category_id = ref(-1);
+                
                 const search_results = ref(null) // link search results
                 const normal_links = ref(null)   // links for current page
                 const links_to_show = ref(null)  // variable used to show links
+                
+                // Make show_border true for links with some real category assigned
+                const links_to_show_computed = computed(() => {
+                    return links_to_show.value.map((elem) => {
+                        elem.show_border = (elem.category.name !== no_category_name);
+                        return elem;
+                    })
+                })
+                
+                
+                // Load categories
+                getCategories(categories, no_category_id);
                 
                 // Download normal links and save them to links_to_show and normal links variables
                 axios.get(get_links_on_page_url + "?page=" + page_number)
@@ -253,10 +278,7 @@
                     })
                     .catch(error => {console.log("Error getting links to show on current page", error)})
                 
-                
 
-                // Load categories
-                getCategories(categories);
                 
                 // Download the number of links per page from the server
                 // and fill the variable selected_item to change form view
@@ -273,6 +295,9 @@
                 }
                 
                 const onCategoryChange = (link) => {
+                    // There is need to manually change the border, because automatic recompute won't happen
+                    // due to nested object field of category
+                    link.show_border = (link.category.id.toString() !== no_category_id.value.toString())
                     axios.post(change_category_url(link.id, link.category.id))
                         .then(response => { console.log(response.data); })
                         .catch(error => {console.error("Error during changing category", error)})
@@ -307,7 +332,8 @@
                 
                 return {
                     selected_item, onItemsPerPageChange, search_input, onSearchInput,
-                    search_results, delLink, categories, onCategoryChange, showLink, links_to_show
+                    search_results, delLink, categories, onCategoryChange, showLink, links_to_show,
+                    no_category_id, links_to_show_computed
                 }
             },
             delimiters: ['[[', ']]'],

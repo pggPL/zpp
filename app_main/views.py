@@ -190,6 +190,9 @@ def link_panel_view(request):
     page_number = request.GET.get('page')
     context['links_with_forms'] = paginator.get_page(page_number)
 
+    if not page_number:
+        page_number = 1
+
     context["page_number"] = page_number
 
     return render(request, "app_main/link_panel.html", context=context)
@@ -306,7 +309,6 @@ def get_links_per_page_view(request):
 @api_view(['GET'])
 def search_link_panel_view(request):
     phrase = request.GET.get("phrase")
-    print(phrase)
     links = Submission.objects.filter(Q(link__icontains=phrase) | Q(platform__name__icontains=phrase)).order_by('date')
     # for link in links:
     #     link.short_link = link.link[:50] + "..." if len(link.link) > 50 else link.link
@@ -321,10 +323,8 @@ def search_link_panel_view(request):
     #
     # links_as_dicts = [{"link": l.link, "short_link": l.short_link, "platform": l.platform.name, "date": l.date} for l in links]
 
-    print(links)
 
     serializer = SubmissionSerializer(links, many=True)
-    print(serializer.data)
 
     return Response(serializer.data)
 
