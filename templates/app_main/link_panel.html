@@ -46,10 +46,9 @@
                                    aria-label="Search items" v-model="search_input" @input="onSearchInput">
                         </form>
                         <select class="form-select me-2" style="width: auto;" aria-label="Sort items" >
-                            <option selected>Sort by</option>
-                            <option value="1">Name</option>
-                            <option value="2">Price</option>
-                            <option value="3">Date</option>
+                            <option selected>Sortuj</option>
+                            <option value="1">Po Dacie</option>
+                            <option value="2">Bez kategorii najpierw</option>
                         </select>
                         <select class="form-select" style="width: auto;" aria-label="Items per page"
                                 v-model="selected_item" @change="onItemsPerPageChange">
@@ -95,10 +94,8 @@
                             </select>
                         </td>
                         <td>
-                            <button class="btn btn-primary btn-sm me-2"
-                                    onclick="window.location.href = edit_link_url(link.id)">Edit
-                            </button>
-                            <button class="btn btn-danger btn-sm" @click="delLink(link.id)">Delete</button>
+                            <button class="btn btn-primary btn-sm me-2" @click="editLink(link)"> Edit </button>
+                            <button class="btn btn-danger btn-sm" @click="delLink(link)">Delete</button>
                         </td>
                     </tr>
                     </tbody>
@@ -248,26 +245,26 @@
                 const search_input = ref("");
                 
                 const categories = ref(null)
-                
+
                 // Id of category which is "no category"
                 const no_category_id = ref(-1);
                 
                 const search_results = ref(null) // link search results
                 const normal_links = ref(null)   // links for current page
                 const links_to_show = ref(null)  // variable used to show links
-                
+
                 // Make show_border true for links with some real category assigned
                 const links_to_show_computed = computed(() => {
                     return links_to_show.value.map((elem) => {
-                        elem.show_border = (elem.category.name !== no_category_name);
-                        return elem;
-                    })
+                            elem.show_border = (elem.category.name !== no_category_name);
+                            return elem;
+                        }).filter(elem => !elem.deleted)
                 })
-                
-                
+
+
                 // Load categories
                 getCategories(categories, no_category_id);
-                
+
                 // Download normal links and save them to links_to_show and normal links variables
                 axios.get(get_links_on_page_url + "?page=" + page_number)
                     .then(response => {
@@ -277,15 +274,26 @@
                         normal_links.value = response.data;
                     })
                     .catch(error => {console.log("Error getting links to show on current page", error)})
-                
+
 
                 
                 // Download the number of links per page from the server
                 // and fill the variable selected_item to change form view
                 getItemsPerPage(selected_item)
                 
-                const delLink = del;
+                const delLink = (link) => {
+                    if (confirm("Czy na pewno chcesz usunąć link?")) {
+                        axios.get("/delete_link/" + link.id +"/link_panel")
+                            .then( (response) => {
+                                link.deleted = true;    
+                            })
+                            .catch((error) => {console.error("Failed to delete link", error)})
+                    }
+                }
                 
+                const editLink = (link) => { window.location.href = edit_link_url(link.id); }
+                    
+                // Show embeded view on right part of the screen    
                 let currently_shown_id = -1;
                 const showLink = (link) => {
                     if (currently_shown_id !== link.id) {
@@ -333,7 +341,7 @@
                 return {
                     selected_item, onItemsPerPageChange, search_input, onSearchInput,
                     search_results, delLink, categories, onCategoryChange, showLink, links_to_show,
-                    no_category_id, links_to_show_computed
+                    no_category_id, links_to_show_computed, editLink
                 }
             },
             delimiters: ['[[', ']]'],

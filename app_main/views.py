@@ -336,6 +336,8 @@ def search_link_panel_view(request):
 @api_view(['GET'])
 def get_links_on_page_view(request):
     submissions = Submission.objects.all().order_by('date')
+
+
     page_number = request.GET.get('page')
     links_per_page = request.user.get_links_per_page()
 
