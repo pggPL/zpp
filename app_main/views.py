@@ -40,7 +40,7 @@ def index(request):
     # if user is not logger, show login screen
     if not request.user.is_authenticated:
         return login_view(request)
-    return link_list_view(request)
+    return link_panel_view(request)
 
 
 def login_view(request):
@@ -60,22 +60,6 @@ def login_view(request):
 
 def get_links_on_page(page_number):
     pass
-
-
-@login_required
-def link_list_view(request):
-    links_list = Submission.objects.all().order_by('date')
-
-    # Paginacja
-    paginator = Paginator(links_list, 30)  # 10 linków na stronę
-    page_number = request.GET.get('page')
-    links = paginator.get_page(page_number)
-
-    # Skracanie linku
-    for link in links:
-        link.short_link = link.link[:50] + "..." if len(link.link) > 50 else link.link
-
-    return render(request, "app_main/link_list.html", context={'links': links})
 
 
 @login_required
