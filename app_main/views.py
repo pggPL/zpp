@@ -84,17 +84,22 @@ def add_file_view(request):
         form = FileUploadForm(request.POST, request.FILES)
         if form.is_valid():
             file = request.FILES['file']
-            data = read_links_file(file)
+            try:
+                new_data, other_data = read_links_file(file)
 
-            context = {
-                'total_links': len(data),
-                'total_unique_links': len(data),
-                'message': 'Plik przeanalizowany. ',
-                'form': form,
-                'links_preview': data,
-            }
+                context = {
+                    'form': form,
+                    'new_links_preview': new_data,
+                    'other_links_preview': other_data,
+                }
 
-            return render(request, "app_main/add_file.html", context)
+                return render(request, "app_main/add_file.html", context)
+            except Exception as e:
+                context = {
+                    'message': 'Plik był niepoprawny.',
+                    'form': form,
+                }
+                return render(request, "app_main/add_file.html", context)
     else:
         form = FileUploadForm()
     return render(request, "app_main/add_file.html", {'form': form})
