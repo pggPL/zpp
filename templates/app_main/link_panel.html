@@ -5,6 +5,16 @@
     .content {
         padding: 0;
     }
+    
+    {# TODO: make this value [screen height - menu bar height] #}
+    #right {
+        height: 93vh;
+    }
+    
+    html, body {
+        overflow: hidden;
+    }
+    
 {% endblock %}
 
 {% block content %}
@@ -63,7 +73,7 @@
                         <tbody>
                         
                         
-                        <tr v-for="(link, index) in search_results">
+                        <tr @click="showLink(link)" v-for="(link, index) in search_results">
                             <td><a :href="link.link"> [[link.short_link]] </a></td>
                             <td>[[link.readable_date]]</td>
                             <td>
@@ -170,6 +180,7 @@
                 const search_input = ref("");
                 const search_results = ref(null)
                 const categories = ref(null)
+                
 
                 // Load categories
                 getCategories(categories);
@@ -179,6 +190,14 @@
                 getItemsPerPage(selected_item)
                 
                 const delLink = del;
+                
+                let currently_shown_id = -1;
+                const showLink = (link) => {
+                    if (currently_shown_id !== link.id) {
+                        currently_shown_id = link.id;
+                        show(link.link);
+                    }
+                }
                 
                 const onCategoryChange = (link) => {
                     axios.post(change_category_url(link.id, link.category.id))
@@ -216,7 +235,7 @@
                 
                 return {
                     selected_item, onItemsPerPageChange, search_input, onSearchInput,
-                    search_results, delLink, categories, onCategoryChange
+                    search_results, delLink, categories, onCategoryChange, showLink
                 }
             },
             delimiters: ['[[', ']]'],
