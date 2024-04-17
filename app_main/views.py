@@ -58,6 +58,10 @@ def login_view(request):
         return render(request, 'app_main/login.html')
 
 
+def get_links_on_page(page_number):
+    pass
+
+
 @login_required
 def link_list_view(request):
     links_list = Submission.objects.all().order_by('date')
@@ -186,6 +190,8 @@ def link_panel_view(request):
     page_number = request.GET.get('page')
     context['links_with_forms'] = paginator.get_page(page_number)
 
+    context["page_number"] = page_number
+
     return render(request, "app_main/link_panel.html", context=context)
 
 
@@ -274,7 +280,7 @@ def export_view(request):
 
     output = ""
     for link in Submission.objects.all():
-        if link.category is not None and link.category is not None:
+        if link.category is not None and link.category.name != "Brak Kategorii":
             output += link.link + "(" + link.platform.name + ", " + link.category.name + ")\n"
     response.content = output
 
@@ -325,3 +331,14 @@ def search_link_panel_view(request):
     # return JsonResponse()
 
     # return render(request, 'app_main/lookup.html', {'links': links, 'phrase': phrase})
+
+@login_required
+@api_view(['GET'])
+def get_links_on_page_view(request):
+    submissions = Submission.objects.all().order_by('date')
+    page_number = request.GET.get('page')
+    links_per_page = request.user.get_links_per_page()
+
+    paginator = Paginator(submissions, links_per_page)
+    serializer = SubmissionSerializer(paginator.get_page(page_number), many=True)
+    return Response(serializer.data)
