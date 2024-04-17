@@ -288,7 +288,7 @@ def export_view(request):
 
     output = ""
     for link in Submission.objects.all():
-        if link.category is not None and link.category.name != "Brak Kategorii":
+        if link.category is not None and link.category.name != "brak kategorii":
             output += link.link + "(" + link.platform.name + ", " + link.category.name + ")\n"
     response.content = output
 
