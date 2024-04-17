@@ -1,7 +1,6 @@
 {% extends 'app_main/base.html' %}
 
 {% block content %}
-
     <div class="table-container">
         <table>
             <tr>
@@ -23,4 +22,26 @@
 
         </table>
     </div>
+    <div class="table-container">
+        <table>
+            <tr>
+                <th> Najpopularniejsze linki </th>
+                <th> Liczba zgłoszeń </th>
+            </tr>
+            {% for link in most_popular_links %}
+            <tr>
+                <td><a id="link_{{ forloop.counter }}" href="{{ link.url }}">{{ link.link }}</a></td>
+                <td>{{ link.report_count }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <script>
+        window.onload = function() {
+            var links = document.querySelectorAll('a[id^="link_"]');
+            links.forEach(function(link) {
+                link.textContent = truncateString(link.textContent, 45);
+            });
+        };
+    </script>
 {% endblock %}
