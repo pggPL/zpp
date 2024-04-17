@@ -83,7 +83,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr @click="showLink(link)" v-for="(link, index) in links_to_show_computed" :key="link.id">
+                    <tr @click="showLink(link)" v-for="(link, index) in links_to_show_computed" :class="{'border-2 border-primary' : link.is_selected}" :key="link.id">
                         <td><a :href="link.link"> [[link.short_link]] </a></td>
                         <td>[[link.readable_date]]</td>
                         <td>
@@ -241,11 +241,17 @@
         
         createApp({
             setup() {
+                
+                // Model for selecting links per page count
                 const selected_item = ref(0);
+                
                 const search_input = ref("");
                 
                 const categories = ref(null)
 
+                // Indicates the selected link (the one which preview loads on the right)
+                const currently_shown_id = ref(-1);
+                
                 // Id of category which is "no category"
                 const no_category_id = ref(-1);
                 
@@ -257,6 +263,7 @@
                 const links_to_show_computed = computed(() => {
                     return links_to_show.value.map((elem) => {
                             elem.show_border = (elem.category.name !== no_category_name);
+                            elem.is_selected = (elem.id === currently_shown_id.value)
                             return elem;
                         }).filter(elem => !elem.deleted)
                 })
@@ -293,11 +300,10 @@
                 
                 const editLink = (link) => { window.location.href = edit_link_url(link.id); }
                     
-                // Show embeded view on right part of the screen    
-                let currently_shown_id = -1;
+                // Show embedded view on right part of the screen
                 const showLink = (link) => {
-                    if (currently_shown_id !== link.id) {
-                        currently_shown_id = link.id;
+                    if (currently_shown_id.value !== link.id) {
+                        currently_shown_id.value = link.id;
                         show(link.link);
                     }
                 }
