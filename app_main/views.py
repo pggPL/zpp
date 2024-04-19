@@ -50,7 +50,7 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return link_list_view(request)  # Redirect to homepage or other page
+            return link_panel_view(request)  # Redirect to homepage or other page
         else:
             # Invalid login
             return render(request, 'app_main/login.html', {'error': 'Niepoprawne dane logowania'})
@@ -268,16 +268,49 @@ def lookup_view(request, phrase):
 
 @login_required
 def export_view(request):
+    with_categories = (Submission.objects.all().exclude(category__name="brak kategorii"))
+    with_categories_count = with_categories.count()
+
+    with_categories_not_exported = with_categories.filter(was_exported=False)
+    with_categories_not_exported_count = with_categories_not_exported.count()
+
+    return render(request, template_name='app_main/export.html',
+                  context={"with_categories_count": with_categories_count,
+                           "with_categories_not_exported_count": with_categories_not_exported_count})
+
+@login_required
+def export_file_view(request):
+    with_categories = (Submission.objects.all().exclude(category__name="brak kategorii"))
+
+    if request.GET.get("type") == "all":
+        to_export = with_categories
+    else:
+        # If the "all" was not specified, export only these not exported yet
+        to_export = with_categories.filter(was_exported=False)
+
+    updated = to_export.update(was_exported=True)
+    for link in to_export:
+        link.save()
+
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="links.txt"'
-
     output = ""
-    for link in Submission.objects.all():
-        if link.category is not None and link.category.name != "brak kategorii":
-            output += link.link + "(" + link.platform.name + ", " + link.category.name + ")\n"
-    response.content = output
+    for link in to_export:
+        output += f"{link.link}({link.platform.name}, {link.category.name})\n"
 
+    response.content = output
     return response
+
+    # response = HttpResponse(content_type='text/csv')
+    # response['Content-Disposition'] = 'attachment; filename="links.txt"'
+    #
+    # output = ""
+    # for link in Submission.objects.all():
+    #     if link.category is not None and link.category.name != "brak kategorii":
+    #         output += link.link + "(" + link.platform.name + ", " + link.category.name + ")\n"
+    # response.content = output
+    #
+    # return response
 
 
 @login_required
@@ -313,7 +346,6 @@ def search_link_panel_view(request):
     #
     # links_as_dicts = [{"link": l.link, "short_link": l.short_link, "platform": l.platform.name, "date": l.date} for l in links]
 
-
     serializer = SubmissionSerializer(links, many=True)
 
     return Response(serializer.data)
@@ -322,11 +354,11 @@ def search_link_panel_view(request):
 
     # return render(request, 'app_main/lookup.html', {'links': links, 'phrase': phrase})
 
+
 @login_required
 @api_view(['GET'])
 def get_links_on_page_view(request):
     submissions = Submission.objects.all().order_by('date')
-
 
     page_number = request.GET.get('page')
     links_per_page = request.user.get_links_per_page()

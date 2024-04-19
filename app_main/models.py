@@ -9,6 +9,9 @@ class Submission(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     report_count = models.IntegerField(default=1)
 
+    # indicates if the submission was exported after filling the category
+    was_exported = models.BooleanField(default=False)
+
     def __str__(self):
         return self.platform.name + " - " + str(self.id)
 
