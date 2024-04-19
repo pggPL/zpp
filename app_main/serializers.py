@@ -26,7 +26,8 @@ class SubmissionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Submission
-        fields = ['id', 'link', 'platform', 'platform_id', 'category', 'category_id', 'date']
+        fields = ['id', 'link', 'platform', 'platform_id', 'category', 'category_id', 'date',
+                  'report_count', 'was_exported']
 
 
 class ProfileSerializer(serializers.ModelSerializer):
