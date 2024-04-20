@@ -237,7 +237,7 @@ def stats_view(request):
         'links_number': len(Submission.objects.all()),
         'links_without_the_cathegory': len(Submission.objects.filter(category__name='brak kategorii')),
         'links_with_the_cathegory': len(Submission.objects.exclude(category__name='brak kategorii')),
-        'most_popular_links': Submission.objects.all().order_by('report_count')[:5]
+        'most_popular_links': Submission.objects.all().order_by('-report_count')[:5]
     }
     return render(request, 'app_main/stats.html', context=context)
 

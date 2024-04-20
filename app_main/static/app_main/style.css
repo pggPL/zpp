@@ -133,11 +133,6 @@ html::-webkit-scrollbar {
   display: none;
 }
 
-html, body {
-    overflow: hidden;
-}
-
-
 .box > .right {
     grid-column: 2;
     grid-row: 1;
