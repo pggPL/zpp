@@ -368,6 +368,30 @@
         document.getElementById('right').innerHTML = '<blockquote class="twitter-tweet"><a href="' + link +'"></a></blockquote>';
         twttr.widgets.load();
     }
+    
+    function showTiktokVideo(link) {
+        axios.get("https://www.tiktok.com/oembed?url=" + link.link)
+        .then(response => {
+            console.log(response.data);
+
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(response.data.html, 'text/html');
+
+            const blockquote_elem = doc.querySelector('blockquote');
+            const script_elem = doc.querySelector('script');
+
+            const content = document.getElementById("right");
+            content.innerHTML = "";
+            content.appendChild(blockquote_elem);
+
+            let new_script_elem = document.createElement("script");
+            new_script_elem.type = "text/javascript";
+            new_script_elem.src = script_elem.src;
+            content.appendChild(new_script_elem);
+        })
+            
+    }
+    
 
     function show(link) {
         // check whether link is facebook post
