@@ -100,72 +100,7 @@
                     </tr>
                     </tbody>
                 </table>
-            </div> 
-        
-{% comment %}            {# search links view #}
-            <div v-if="search_input.length !== 0">
-                <div v-if="search_results === null">
-                    Ładowanie wyników wyszukiwania...
-                </div>
-                <div v-else-if="search_results.length === 0">
-                    Podana fraza nie została znaleziona.
-                </div>
-                <div v-else class="container mt-2">
-                    <table class="table table-hover">
-                        <thead>
-                        <tr>
-                            <th scope="col">Link</th>
-                            <th scope="col">Date</th>
-                            <th scope="col">Category</th>
-                            <th scope="col">Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        
-                        
-                        <tr @click="showLink(link)" v-for="(link, index) in search_results">
-                            <td><a :href="link.link"> [[link.short_link]] </a></td>
-                            <td>[[link.readable_date]]</td>
-                            <td>
-                                <select  class="form-select" v-model="link.category.id" @change="onCategoryChange(link)">
-                                    <option v-for="category in categories" :value="category.id">
-                                        [[ category.name ]]
-                                    </option>
-                                </select>
-                            </td>
-                            <td>
-                                <button class="btn btn-primary btn-sm me-2" onclick="window.location.href = edit_link_url(link.id)">Edit</button>
-                                <button class="btn btn-danger btn-sm" @click="delLink(link.id)">Delete</button>
-                            </td>
-                        </tr>
-                        <!-- Repeat rows here as needed -->
-                        </tbody>
-                    </table>
-                </div>
             </div>
-            {# Normal links view #}
-            <div v-else >
-            {% for link in links_with_forms %}
-                <div class="one_link_panel {% if link.done %} done {% else %} not_done {% endif %}" onclick="clicked({{ link.link.id }}, '{{ link.link.link }}')" id="one_link_panel_{{ link.link.id }}">
-                    <div style="width: 340px; font-size: 12px"><a href="{{ link.link.link }}" target="new"> {{ link.link.short_link }}</a></div>
-                    <div style="width: 300px; font-size: 12px; margin: 0 5px">{{ link.link.date }}</div>
-
-                    <form method="post" style="width: 400px; display: block;" id="form_{{ link.link.id }}">
-                        {{ link.form.csrf_token }}
-                        {% for field in link.form %}
-                            {{ field }}
-                        {% endfor %}
-                    </form>
-
-                    <div style="width: 200px; display: block">
-                        <input type="button" style="float: right" value="Usuń" onclick="del({{ link.link.id }})">
-                        <input type="button" style="float: right" value="Edytuj" onclick="window.location.href = '/edit_link/{{ link.link.id }}/link_panel'">
-
-                    </div>
-                </div>
-            {% endfor %}
-            </div>{% endcomment %}
-
             <div class="pagination">
                 {% if links_with_forms.has_previous %}
                     <a href="?page=1" class="page-link">&laquo; pierwsza</a>
@@ -370,30 +305,35 @@
     }
     
     function showTiktokVideo(link) {
-        axios.get("https://www.tiktok.com/oembed?url=" + link.link)
-        .then(response => {
-            console.log(response.data);
-
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(response.data.html, 'text/html');
-
-            const blockquote_elem = doc.querySelector('blockquote');
-            const script_elem = doc.querySelector('script');
-
-            const content = document.getElementById("right");
-            content.innerHTML = "";
-            content.appendChild(blockquote_elem);
-
-            let new_script_elem = document.createElement("script");
-            new_script_elem.type = "text/javascript";
-            new_script_elem.src = script_elem.src;
-            content.appendChild(new_script_elem);
-        })
+        const target = "https://www.tiktok.com/oembed?url=" + link;
             
+        fetch(target)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+    
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(data.html, 'text/html');
+    
+                const blockquote_elem = doc.querySelector('blockquote');
+                const script_elem = doc.querySelector('script');
+    
+                const content = document.getElementById("right");
+                content.innerHTML = "";
+                content.appendChild(blockquote_elem);
+    
+                let new_script_elem = document.createElement("script");
+                new_script_elem.type = "text/javascript";
+                new_script_elem.src = script_elem.src;
+                content.appendChild(new_script_elem);
+        })
     }
     
 
     function show(link) {
+        
+        const tiktok_video_regex = /^https?:\/\/(www\.)?tiktok\.com\/(@\w+\/video\/\d+|t\/\d+)$/;
+            
         // check whether link is facebook post
         if (link.includes('facebook.com/post')) {
             showFacebookPost(link);
@@ -401,6 +341,8 @@
             showTwitterPost(link);
         } else if (link.includes('twitter.com')) {
             showTwitterProfile(link);
+        } else if (tiktok_video_regex.test(link)){
+            showTiktokVideo(link);
         }
         else {
             document.getElementById('right').innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%">' +
@@ -415,7 +357,7 @@
             window.location.href = "/delete_link/" + id +"/link_panel";
         }
     }
-    function  sendChange(e) {
+{% comment %}    function  sendChange(e) {
         e.preventDefault()
         // get if of form that was changed
         let id = $(this).parent().attr('id').split('_')[1]
@@ -439,19 +381,18 @@
                 alert("Wystąpił nieoczekiwany błąd")
             }
         })
-    }
-
-
+    }{% endcomment %}
+        
 
     // on load
-    $(document).ready(function() {
+{% comment %}    $(document).ready(function() {
         // iterate through all forms
         $('select').each(function() {
             $(this).change(sendChange);
         });
-    });
+    });{% endcomment %}
 
-    function clicked(id, link) {
+{% comment %}    function clicked(id, link) {
         // remove last-clicked class from all elements
         $('.one_link_panel').removeClass('last-clicked');
 
@@ -460,11 +401,11 @@
 
         // show
         show(link)
-    }
+    }{% endcomment %}
+    
+    
     </script>
 
     <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-    
-{#    <script src = "{% static 'app_main/link_panel_vue.js' %}" ></script>#}
     
 {% endblock %}
