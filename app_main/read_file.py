@@ -36,7 +36,7 @@ def save_to_db(data):
             continue
 
         platform = Platform.objects.get_or_create(name=platform)[0]
-        category = SubmissionCategory.objects.get_or_create(name="brak kategorii")[0]
+        category = SubmissionCategory.objects.get_or_create(name="brak kategorii", is_null=True)[0]
 
         # create link in database
         Submission.objects.get_or_create(link=link, platform=platform, category=category)

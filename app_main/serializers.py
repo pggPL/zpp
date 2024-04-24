@@ -11,7 +11,7 @@ class PlatformSerializer(serializers.ModelSerializer):
 class SubmissionCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = SubmissionCategory
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'is_null']
 
 
 class SubmissionSerializer(serializers.ModelSerializer):

@@ -235,8 +235,8 @@ def change_password_view(request):
 def stats_view(request):
     context = {
         'links_number': len(Submission.objects.all()),
-        'links_without_the_cathegory': len(Submission.objects.filter(category__name='brak kategorii')),
-        'links_with_the_cathegory': len(Submission.objects.exclude(category__name='brak kategorii')),
+        'links_without_the_cathegory': len(Submission.objects.filter(category__is_null=True)),
+        'links_with_the_cathegory': len(Submission.objects.exclude(category__is_null=True)),
         'most_popular_links': Submission.objects.all().order_by('-report_count')[:5]
     }
     return render(request, 'app_main/stats.html', context=context)
@@ -268,7 +268,7 @@ def lookup_view(request, phrase):
 
 @login_required
 def export_view(request):
-    with_categories = (Submission.objects.all().exclude(category__name="brak kategorii"))
+    with_categories = (Submission.objects.all().exclude(category__is_null=True))
     with_categories_count = with_categories.count()
 
     with_categories_not_exported = with_categories.filter(was_exported=False)
@@ -280,7 +280,7 @@ def export_view(request):
 
 @login_required
 def export_file_view(request):
-    with_categories = (Submission.objects.all().exclude(category__name="brak kategorii"))
+    with_categories = (Submission.objects.all().exclude(category__is_null=True))
 
     if request.GET.get("type") == "all":
         to_export = with_categories
@@ -300,17 +300,6 @@ def export_file_view(request):
 
     response.content = output
     return response
-
-    # response = HttpResponse(content_type='text/csv')
-    # response['Content-Disposition'] = 'attachment; filename="links.txt"'
-    #
-    # output = ""
-    # for link in Submission.objects.all():
-    #     if link.category is not None and link.category.name != "brak kategorii":
-    #         output += link.link + "(" + link.platform.name + ", " + link.category.name + ")\n"
-    # response.content = output
-    #
-    # return response
 
 
 @login_required

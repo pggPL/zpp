@@ -18,13 +18,10 @@
 {% endblock %}
 
 
-
-
 {% block content %}
     
     <script>
         let page_number = {{ page_number }};
-        const no_category_name = "brak kategorii";
     </script>
     
     
@@ -83,11 +80,11 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr @click="showLink(link)" v-for="(link, index) in links_to_show_computed" :class="{'border-2 border-primary' : link.is_selected}" :key="link.id">
+                    <tr @click="showLink(link)" v-for="(link, index) in links_to_show_computed" :class="{'border-2 border-primary' : link.id === currently_shown_id}" :key="link.id">
                         <td><a :href="link.link"> [[link.short_link]] </a></td>
                         <td>[[link.readable_date]]</td>
                         <td>
-                            <select class="form-select" :class="{'border-3 border-success': link.show_border}" v-model="link.category.id" @change="onCategoryChange(link)">
+                            <select class="form-select" :class="{'border-3 border-success': !link.category.is_null}" v-model="link.category.id" @change="onCategoryChange(link)">
                                 <option v-for="category in categories" :value="category.id">
                                     [[ category.name ]]
                                 </option>
@@ -144,21 +141,10 @@
 
         }
         
-        function getCategories(categories, no_category_id) {
+        function getCategories(categories) {
             axios.get("/api/categories")
                 .then(response => {
-                    console.log(response.data);
-                    for (let category of response.data) {
-                        if (category.name === no_category_name) {
-                            no_category_id.value = category.id;
-                            break;
-                        }
-                    }
-                    if (no_category_id.value < 0) {
-                        console.error(`"${no_category_name}" was not found in loaded categories`)
-                    }
                     categories.value = response.data;
-                    
                 })
                 .catch(error => {
                     console.error("Error getting categories.", error);
@@ -176,10 +162,9 @@
         
         /** @param {Object[]} categories vue object with an array of objects representing categories
          *  @param {number} id {
-         *  @returns {String} */
-        function categoryNameFromId(categories, id) {
-            let found = categories.find((elem) => {return elem.id === id});
-            return found.name;
+         *  @returns {Object} */
+        function categoryFromId(categories, id) {
+            return categories.find((elem) => {return elem.id === id});
         }
         
         
@@ -196,25 +181,17 @@
                 // Indicates the selected link (the one which preview loads on the right)
                 const currently_shown_id = ref(-1);
                 
-                // Id of category which is "no category"
-                const no_category_id = ref(-1);
-                
                 const search_results = ref(null) // link search results
                 const normal_links = ref(null)   // links for current page
                 const links_to_show = ref(null)  // variable used to show links
 
-                // Make show_border true for links with some real category assigned
                 const links_to_show_computed = computed(() => {
-                    return links_to_show.value.map((elem) => {
-                            elem.show_border = (elem.category.name !== no_category_name);
-                            elem.is_selected = (elem.id === currently_shown_id.value)
-                            return elem;
-                        }).filter(elem => !elem.deleted)
+                    return links_to_show.value.filter(elem => !elem.deleted);
                 })
 
 
                 // Load categories
-                getCategories(categories, no_category_id)
+                getCategories(categories)
                 
                 
                 // Download normal links and save them to links_to_show and normal links variables
@@ -254,12 +231,10 @@
                 }
                 
                 const onCategoryChange = (link) => {
-                    // There is need to manually change the border, because automatic recompute won't happen
-                    // due to nested object field of link
-                    
-                    // Change category name manually, because only category id updates automatically
-                    link.category.name = categoryNameFromId(categories.value, link.category.id);
-                    link.show_border = (link.category.name !== no_category_name);
+
+                    // Change category manually, because only category id updates automatically
+                    // Find category by id and copy it to the link.category field using {...  } syntax
+                    link.category = {...categoryFromId(categories.value, link.category.id)};
                     axios.post(change_category_url(link.id, link.category.id))
                         .then(response => { console.log(response.data); })
                         .catch(error => {console.error("Error during changing category", error)})
@@ -295,7 +270,7 @@
                 return {
                     selected_item, onItemsPerPageChange, search_input, onSearchInput,
                     search_results, delLink, categories, onCategoryChange, showLink, links_to_show,
-                    no_category_id, links_to_show_computed, editLink
+                    links_to_show_computed, editLink, currently_shown_id
                 }
             },
             delimiters: ['[[', ']]'],
@@ -371,52 +346,8 @@
             window.location.href = "/delete_link/" + id +"/link_panel";
         }
     }
-{% comment %}    function  sendChange(e) {
-        e.preventDefault()
-        // get if of form that was changed
-        let id = $(this).parent().attr('id').split('_')[1]
 
-        // send ajax add category request
-        $.ajax({
-            url: '/change_category/' + id + '/' + $(this).val(),
-            type: 'POST',
-            data: $(this).parent().serialize(),
-            headers: {
-                'X-CSRFToken': csrftoken
-            },
-            success: function(response) {
-                if (response === 'done') {
-                    $('#form_' + id).parent().removeClass('not_done').addClass('done');
-                } else {
-                    $('#form_' + id).parent().removeClass('done').addClass('not_done');
-                }
-            },
-            error: function(error) {
-                alert("Wystąpił nieoczekiwany błąd")
-            }
-        })
-    }{% endcomment %}
-        
 
-    // on load
-{% comment %}    $(document).ready(function() {
-        // iterate through all forms
-        $('select').each(function() {
-            $(this).change(sendChange);
-        });
-    });{% endcomment %}
-
-{% comment %}    function clicked(id, link) {
-        // remove last-clicked class from all elements
-        $('.one_link_panel').removeClass('last-clicked');
-
-        // add last-clicked class to clicked element
-        $('#one_link_panel_' + id).addClass('last-clicked');
-
-        // show
-        show(link)
-    }{% endcomment %}
-    
     
     </script>
 

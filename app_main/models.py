@@ -26,6 +26,9 @@ class Platform(models.Model):
 class SubmissionCategory(models.Model):
     name = models.CharField(max_length=200, default="brak kategorii")
 
+    # This field (if true) tells that the category indicates "no category given"
+    is_null = models.BooleanField()
+
     def __str__(self):
         return self.name
 
@@ -42,6 +45,7 @@ class Profile(AbstractUser):
     )
 
     links_per_page = models.IntegerField(default=10)
+
 
     #sorting = models.CharField(max_length=10, default="Date Descending")
 
