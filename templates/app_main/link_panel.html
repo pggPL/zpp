@@ -251,7 +251,7 @@
                     let params = {phrase: search_input.value}
                     axios.get(search_link_panel_url, {params})
                         .then(response => {
-                            // Truncate links and add special category for submissions with no category specified
+                            // Truncate links and add readable date
                             preprocessLinks(response.data);
                             search_results.value = response.data;
                             links_to_show.value = response.data;

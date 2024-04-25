@@ -24,6 +24,8 @@ from django.http import JsonResponse
 
 from app_main.serializers import SubmissionSerializer
 
+from app_main.sorting import Sorting
+
 
 # decorator – require senior rank
 def senior_required(view_func):
@@ -170,7 +172,7 @@ def link_panel_view(request):
 
     for link in submissions:
         form = LinkForm1(instance=link)
-        context['links_with_forms'].append({"form": form, "link": link, "done": link.category is not None})
+        context['links_with_forms'].append({"form": form, "link": link})
     # sort links_with_forms by done
     # context['links_with_forms'].sort(key=lambda x: x['done'])
 
@@ -322,32 +324,18 @@ def get_links_per_page_view(request):
 def search_link_panel_view(request):
     phrase = request.GET.get("phrase")
     links = Submission.objects.filter(Q(link__icontains=phrase) | Q(platform__name__icontains=phrase)).order_by('date')
-    # for link in links:
-    #     link.short_link = link.link[:50] + "..." if len(link.link) > 50 else link.link
-
-    # links = list(links)
-    # print(links)
-    # return search result
-
-    # json_links = serialize('json', links)
-    #
-    # print(json_links)
-    #
-    # links_as_dicts = [{"link": l.link, "short_link": l.short_link, "platform": l.platform.name, "date": l.date} for l in links]
-
     serializer = SubmissionSerializer(links, many=True)
 
     return Response(serializer.data)
 
-    # return JsonResponse()
-
-    # return render(request, 'app_main/lookup.html', {'links': links, 'phrase': phrase})
 
 
 @login_required
 @api_view(['GET'])
 def get_links_on_page_view(request):
-    submissions = Submission.objects.all().order_by('date')
+    # submissions = Submission.objects.all().order_by('-category__is_null')
+
+    submissions = Sorting.sort(Submission.objects.all(), "with_no_categories_first")
 
     page_number = request.GET.get('page')
     links_per_page = request.user.get_links_per_page()
