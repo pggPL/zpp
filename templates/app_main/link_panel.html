@@ -43,9 +43,9 @@
                                    aria-label="Search items" v-model="search_input" @input="onSearchInput">
                         </form>
                         <select class="form-select me-2" style="width: auto;" aria-label="Sort items" >
-                            <option selected>Sortuj</option>
-                            <option value="1">Po Dacie</option>
-                            <option value="2">Bez kategorii najpierw</option>
+                            <option v-for="s in sorting_types" :value="s" v-bind="current_sorting">
+                                [[ s ]]
+                            </option>
                         </select>
                         <select class="form-select" style="width: auto;" aria-label="Items per page"
                                 v-model="selected_item" @change="onItemsPerPageChange">
@@ -167,6 +167,13 @@
             return categories.find((elem) => {return elem.id === id});
         }
         
+        function getSortingTypes(sorting_types) {
+            axios.get("/sorting/")
+                .then(response => { sorting_types.value = response.data;
+                console.log(response.data)})
+                .catch(error => { console.error("Failed loading sorting types. ", error)})
+        }
+        
         
         createApp({
             setup() {
@@ -176,8 +183,11 @@
                 
                 const search_input = ref("");
                 
-                const categories = ref(null)
-
+                const categories = ref(null);
+                
+                const sorting_types = ref(null);
+                const current_sorting = ref("");
+                
                 // Indicates the selected link (the one which preview loads on the right)
                 const currently_shown_id = ref(-1);
                 
@@ -185,6 +195,9 @@
                 const normal_links = ref(null)   // links for current page
                 const links_to_show = ref(null)  // variable used to show links
 
+                
+                
+                
                 const links_to_show_computed = computed(() => {
                     return links_to_show.value.filter(elem => !elem.deleted);
                 })
@@ -192,6 +205,9 @@
 
                 // Load categories
                 getCategories(categories)
+                
+                getSortingTypes(sorting_types);
+                
                 
                 
                 // Download normal links and save them to links_to_show and normal links variables
@@ -270,7 +286,7 @@
                 return {
                     selected_item, onItemsPerPageChange, search_input, onSearchInput,
                     search_results, delLink, categories, onCategoryChange, showLink, links_to_show,
-                    links_to_show_computed, editLink, currently_shown_id
+                    links_to_show_computed, editLink, currently_shown_id, sorting_types, current_sorting
                 }
             },
             delimiters: ['[[', ']]'],

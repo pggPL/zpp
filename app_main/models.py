@@ -47,7 +47,7 @@ class Profile(AbstractUser):
     links_per_page = models.IntegerField(default=10)
 
 
-    #sorting = models.CharField(max_length=10, default="Date Descending")
+    sorting = models.CharField(max_length=40, default='by_date');
 
     def get_links_per_page(self):
         return self.links_per_page

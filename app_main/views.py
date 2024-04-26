@@ -280,6 +280,7 @@ def export_view(request):
                   context={"with_categories_count": with_categories_count,
                            "with_categories_not_exported_count": with_categories_not_exported_count})
 
+
 @login_required
 def export_file_view(request):
     with_categories = (Submission.objects.all().exclude(category__is_null=True))
@@ -329,7 +330,6 @@ def search_link_panel_view(request):
     return Response(serializer.data)
 
 
-
 @login_required
 @api_view(['GET'])
 def get_links_on_page_view(request):
@@ -343,3 +343,14 @@ def get_links_on_page_view(request):
     paginator = Paginator(submissions, links_per_page)
     serializer = SubmissionSerializer(paginator.get_page(page_number), many=True)
     return Response(serializer.data)
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def sorting(request):
+    if request.method == "GET":
+        return JsonResponse(Sorting.get_sorting_types(), safe=False)
+    elif request.method == "POST":
+        data = json.loads(request.body)
+        print(data)
+        return JsonResponse("done")
