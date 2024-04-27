@@ -42,8 +42,9 @@
                             <input class="form-control" type="search" placeholder="Search items"
                                    aria-label="Search items" v-model="search_input" @input="onSearchInput">
                         </form>
-                        <select class="form-select me-2" style="width: auto;" aria-label="Sort items" >
-                            <option v-for="s in sorting_types" :value="s" v-bind="current_sorting">
+                        <select class="form-select me-2" style="width: auto;" aria-label="Sort items" 
+                                v-model="current_sorting">
+                            <option v-for="s in sorting_types" :value="s" >
                                 [[ s ]]
                             </option>
                         </select>
@@ -174,6 +175,13 @@
                 .catch(error => { console.error("Failed loading sorting types. ", error)})
         }
         
+        function getCurrentSorting(current_sorting_out) {
+            axios.get(current_user_url)
+                .then(response => {current_sorting_out.value = response.data.sorting;
+                console.log(response.data.sorting)})
+                .catch(error => {console.error("Failed to get current user.", error)})
+        }
+        
         
         createApp({
             setup() {
@@ -186,7 +194,7 @@
                 const categories = ref(null);
                 
                 const sorting_types = ref(null);
-                const current_sorting = ref("");
+                const current_sorting = ref(null);
                 
                 // Indicates the selected link (the one which preview loads on the right)
                 const currently_shown_id = ref(-1);
@@ -206,9 +214,14 @@
                 // Load categories
                 getCategories(categories)
                 
+                // Get sorting data
+                getCurrentSorting(current_sorting);
                 getSortingTypes(sorting_types);
+
                 
+
                 
+
                 
                 // Download normal links and save them to links_to_show and normal links variables
                 axios.get(get_links_on_page_url + "?page=" + page_number)
@@ -292,6 +305,7 @@
             delimiters: ['[[', ']]'],
         }).mount('#link-panel-content')
 
+        
     function showFacebookPost(link) {
         document.getElementById('right').innerHTML = '<center><div class="fb-post" data-href="' + link + '" data-width="500" data-show-text="true"></div></center>';
         FB.XFBML.parse();

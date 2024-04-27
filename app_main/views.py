@@ -22,7 +22,7 @@ from app_main.read_file import read_links_file, save_to_db
 import json
 from django.http import JsonResponse
 
-from app_main.serializers import SubmissionSerializer
+from app_main.serializers import SubmissionSerializer, ProfileSerializer
 
 from app_main.sorting import Sorting
 
@@ -320,6 +320,20 @@ def get_links_per_page_view(request):
     return JsonResponse({"links_per_page": n_links})
 
 
+
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def sorting(request):
+    if request.method == "GET":
+        return JsonResponse(Sorting.get_sorting_types(), safe=False)
+    elif request.method == "POST":
+        data = json.loads(request.body)
+        print(data)
+        return JsonResponse("done")
+
+
 @login_required
 @api_view(['GET'])
 def search_link_panel_view(request):
@@ -346,11 +360,7 @@ def get_links_on_page_view(request):
 
 
 @login_required
-@require_http_methods(["GET", "POST"])
-def sorting(request):
-    if request.method == "GET":
-        return JsonResponse(Sorting.get_sorting_types(), safe=False)
-    elif request.method == "POST":
-        data = json.loads(request.body)
-        print(data)
-        return JsonResponse("done")
+@api_view(['GET'])
+def current_user_view(request):
+    serializer = ProfileSerializer(request.user)
+    return Response(serializer.data)

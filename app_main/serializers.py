@@ -33,7 +33,7 @@ class SubmissionSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['id', 'username', 'email', 'rank', 'links_per_page']
+        fields = ['id', 'username', 'email', 'rank', 'links_per_page', 'sorting']
         extra_kwargs = {
             'email': {'required': True},  # Assuming email should be required for a user profile
         }

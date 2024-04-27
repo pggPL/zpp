@@ -39,4 +39,7 @@ urlpatterns = [
     path("get_links_on_page/", views.get_links_on_page_view, name="get_links_on_page"),
     path("sorting/", views.sorting, name="sorting"),
 
+    # api
+    path("current_user/", views.current_user_view, name="current_user"),
+
 ]
