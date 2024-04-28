@@ -349,7 +349,7 @@ def search_link_panel_view(request):
 def get_links_on_page_view(request):
     # submissions = Submission.objects.all().order_by('-category__is_null')
 
-    submissions = Sorting.sort(Submission.objects.all(), "with_no_categories_first")
+    submissions = Sorting.sort(Submission.objects.all(), request.user.sorting)
 
     page_number = request.GET.get('page')
     links_per_page = request.user.get_links_per_page()

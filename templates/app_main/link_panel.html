@@ -43,7 +43,7 @@
                                    aria-label="Search items" v-model="search_input" @input="onSearchInput">
                         </form>
                         <select class="form-select me-2" style="width: auto;" aria-label="Sort items" 
-                                v-model="current_sorting">
+                                v-model="profile.sorting" @change="onSortingChange">
                             <option v-for="s in sorting_types" :value="s" >
                                 [[ s ]]
                             </option>
@@ -182,6 +182,13 @@
                 .catch(error => {console.error("Failed to get current user.", error)})
         }
         
+        function getProfile(profile) {
+            axios.get(current_user_url)
+                .then(response => {profile.value = response.data;
+                console.log("here", response.data)})
+                .catch(error => {console.error("Failed to get current user.", error)})
+        }
+        
         
         createApp({
             setup() {
@@ -195,6 +202,9 @@
                 
                 const sorting_types = ref(null);
                 const current_sorting = ref(null);
+                
+                const profile = ref({sorting: "loading..."});
+                
                 
                 // Indicates the selected link (the one which preview loads on the right)
                 const currently_shown_id = ref(-1);
@@ -218,7 +228,7 @@
                 getCurrentSorting(current_sorting);
                 getSortingTypes(sorting_types);
 
-                
+                getProfile(profile);
 
                 
 
@@ -291,6 +301,16 @@
                         })
                 }
                 
+                const onSortingChange = () => {
+                    console.log("after_change:", profile.value.sorting);
+                    axios.patch(`/api/profiles/${profile.value.id}/`, {
+                        sorting: profile.value.sorting
+                    })
+                        .then(response => window.location.href = link_panel_url)
+                        .catch(error => console.log("failed to change sorting", error));
+                }
+                
+                
                 const onItemsPerPageChange = () => {
                     console.log("item has changed: " + selected_item.value)
                     window.location.href = `${change_links_per_page_url}?new_count=${selected_item.value}`
@@ -299,7 +319,8 @@
                 return {
                     selected_item, onItemsPerPageChange, search_input, onSearchInput,
                     search_results, delLink, categories, onCategoryChange, showLink, links_to_show,
-                    links_to_show_computed, editLink, currently_shown_id, sorting_types, current_sorting
+                    links_to_show_computed, editLink, currently_shown_id, sorting_types, current_sorting,
+                    profile, onSortingChange
                 }
             },
             delimiters: ['[[', ']]'],
