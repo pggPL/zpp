@@ -4,7 +4,7 @@ class Sorting:
     sorting_types = {
         "with_no_categories_first": lambda x: x.order_by('-category__is_null'),
         "by_date": lambda x: x.order_by('date'),
-        "by_link": lambda x: x.order_by('link')
+        "by_link": lambda x: x.order_by('link'),
     }
 
     @classmethod
