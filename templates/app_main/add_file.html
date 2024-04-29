@@ -14,6 +14,24 @@
         tr.red:nth-child(even) {
             background-color: #f85e53;
         }
+
+        html, body {
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .links_table {
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .platform-column {
+            width: 20%;
+        } 
+
+        .link-column {
+            overflow-wrap: break-word;
+        }
     </style>
     <script>
         
@@ -48,19 +66,19 @@
             </div>
             <table class = "links_table">
             <tr>
-                <th>Platform</th>
+                <th class="platform-column">Platform</th>
                 <th>Link</th>
             </tr>
             {% for data_row in new_links_preview %}
                 <tr>
-                    <td>{{ data_row.platform }}</td> 
-                    <td> {{  data_row.link }}</td>
+                    <td class="platform-column">{{ data_row.platform }}</td> 
+                    <td class="link-column"> {{  data_row.link }}</td>
                 </tr>
             {% endfor %}
             {% for data_row in other_links_preview %}
                 <tr class="red">
-                    <td>{{ data_row.platform }}</td>
-                    <td> {{  data_row.link }}</td>
+                    <td class="platform-column">{{ data_row.platform }}</td>
+                    <td class="link-column"> {{  data_row.link }}</td>
                 </tr>
             {% endfor %}
             </table>
