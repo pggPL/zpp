@@ -7,9 +7,9 @@
     }
     
     {# TODO: make this value [screen height - menu bar height] #}
-    #right {
+{% comment %}    #right {
         height: 93vh;
-    }
+    }{% endcomment %}
     
     html, body {
         overflow: hidden;
@@ -115,8 +115,19 @@
                 {% endif %}
             </div>
         </div>
-        <div class="right" id="right">
+        
+        <div id="right-wrapper"> 
+            <div class="right" id="right"></div>
+            <div id="spinner-container">
+                <div id="spinner" class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+
         </div>
+    
+{#        <div class="right" id="right"></div>#}
+    
     </div>
 
     <script type="module">
@@ -174,14 +185,7 @@
                 console.log(response.data)})
                 .catch(error => { console.error("Failed loading sorting types. ", error)})
         }
-        
-{% comment %}        function getCurrentSorting(current_sorting_out) {
-            axios.get(current_user_url)
-                .then(response => {current_sorting_out.value = response.data.sorting;
-                console.log(response.data.sorting)})
-                .catch(error => {console.error("Failed to get current user.", error)})
-        }{% endcomment %}
-        
+
         function getProfile(profile) {
             axios.get(current_user_url)
                 .then(response => {profile.value = response.data;
@@ -201,10 +205,10 @@
                 const categories = ref(null);
                 
                 const sorting_types = ref(null);
-                // const current_sorting = ref(null);
                 
                 const profile = ref({sorting: "loading..."});
                 
+                const show_spinner = ref(false);
                 
                 // Indicates the selected link (the one which preview loads on the right)
                 const currently_shown_id = ref(-1);
@@ -322,7 +326,7 @@
                     selected_item, onItemsPerPageChange, search_input, onSearchInput,
                     search_results, delLink, categories, onCategoryChange, showLink, links_to_show,
                     links_to_show_computed, editLink, currently_shown_id, sorting_types,
-                    profile, onSortingChange, sorting_mapper
+                    profile, onSortingChange, sorting_mapper, show_spinner
                 }
             },
             delimiters: ['[[', ']]'],
@@ -338,9 +342,12 @@
         document.getElementById('right').innerHTML = '<center><a class="twitter-timeline" href="' + link +
             '"></a> ' + '</center>';
         
+        let spinner = document.getElementById("spinner");
+        spinner.style.visibility = "visible";
+        
         // TODO: add loader icon while loading
         // This function returns a promise, we can wait for it and show the loader while waiting
-        twttr.widgets.load()
+        twttr.widgets.load().then(() => spinner.style.visibility = "hidden");
     }
 
     function showTwitterPost(link) {
@@ -376,6 +383,8 @@
         
         const tiktok_video_regex = /^https?:\/\/(www\.)?tiktok\.com\/(@\w+\/video\/\d+|t\/\d+)$/;
             
+        // TODO: add spinner
+        
         // check whether link is facebook post
         if (link.includes('facebook.com/post')) {
             showFacebookPost(link);
@@ -391,6 +400,8 @@
                 '<div>Wyświetl <a href="' + link + '" target="new">link</a> w przeglądarce</div></div>';
         }
 
+        //
+        
 
     }
 
