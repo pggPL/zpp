@@ -117,12 +117,13 @@
         </div>
         
         <div id="right-wrapper"> 
-            <div class="right" id="right"></div>
-            <div id="spinner-container">
+            
+            <div v-if="show_spinner" id="spinner-container">
                 <div id="spinner" class="spinner-border" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
             </div>
+            <div :class="{'d-none' : show_spinner}" class="right" id="right"></div>
 
         </div>
     
@@ -173,7 +174,7 @@
         }
         
         /** @param {Object[]} categories vue object with an array of objects representing categories
-         *  @param {number} id {
+         *  @param {number} id
          *  @returns {Object} */
         function categoryFromId(categories, id) {
             return categories.find((elem) => {return elem.id === id});
@@ -268,10 +269,14 @@
                 const editLink = (link) => { window.location.href = edit_link_url(link.id); }
                     
                 // Show embedded view on right part of the screen
-                const showLink = (link) => {
+                async function showLink(link) {
                     if (currently_shown_id.value !== link.id) {
                         currently_shown_id.value = link.id;
-                        show(link.link);
+                        
+                        // Show spinner while content is loading
+                        show_spinner.value = true;
+                        await show(link.link);
+                        show_spinner.value = false;
                     }
                 }
                 
@@ -333,32 +338,26 @@
         }).mount('#link-panel-content')
 
         
-    function showFacebookPost(link) {
+    async function showFacebookPost(link) {
         document.getElementById('right').innerHTML = '<center><div class="fb-post" data-href="' + link + '" data-width="500" data-show-text="true"></div></center>';
-        FB.XFBML.parse();
+        await FB.XFBML.parse();
     }
 
-    function showTwitterProfile(link) {
+    async function showTwitterProfile(link) {
         document.getElementById('right').innerHTML = '<center><a class="twitter-timeline" href="' + link +
             '"></a> ' + '</center>';
-        
-        let spinner = document.getElementById("spinner");
-        spinner.style.visibility = "visible";
-        
-        // TODO: add loader icon while loading
-        // This function returns a promise, we can wait for it and show the loader while waiting
-        twttr.widgets.load().then(() => spinner.style.visibility = "hidden");
+        await twttr.widgets.load()
     }
 
-    function showTwitterPost(link) {
+    async function showTwitterPost(link) {
         document.getElementById('right').innerHTML = '<blockquote class="twitter-tweet"><a href="' + link +'"></a></blockquote>';
-        twttr.widgets.load();
+        await twttr.widgets.load();
     }
     
-    function showTiktokVideo(link) {
+    async function showTiktokVideo(link) {
         const target = "https://www.tiktok.com/oembed?url=" + link;
             
-        fetch(target)
+        await fetch(target)
             .then(response => response.json())
             .then(data => {
                 const parser = new DOMParser();
@@ -379,30 +378,24 @@
     }
     
 
-    function show(link) {
+    async function show(link) {
         
         const tiktok_video_regex = /^https?:\/\/(www\.)?tiktok\.com\/(@\w+\/video\/\d+|t\/\d+)$/;
-            
-        // TODO: add spinner
         
         // check whether link is facebook post
         if (link.includes('facebook.com/post')) {
-            showFacebookPost(link);
+            await showFacebookPost(link);
         } else if (link.includes('twitter.com') && link.includes('/status/')) {
-            showTwitterPost(link);
+            await showTwitterPost(link);
         } else if (link.includes('twitter.com')) {
-            showTwitterProfile(link);
+            await showTwitterProfile(link);
         } else if (tiktok_video_regex.test(link)){
-            showTiktokVideo(link);
+            await showTiktokVideo(link);
         }
         else {
             document.getElementById('right').innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%">' +
                 '<div>Wyświetl <a href="' + link + '" target="new">link</a> w przeglądarce</div></div>';
         }
-
-        //
-        
-
     }
 
     function del(id) {
