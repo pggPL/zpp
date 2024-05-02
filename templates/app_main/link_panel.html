@@ -1,20 +1,16 @@
 {% extends 'app_main/base.html' %}
 {% load static %}
 
-{% block style %}
-    .content {
-        padding: 0;
-    }
-    
-    {# TODO: make this value [screen height - menu bar height] #}
-{% comment %}    #right {
-        height: 93vh;
-    }{% endcomment %}
-    
-    html, body {
-        overflow: hidden;
-    }
-    
+
+{% block head %}
+    <style>
+        .content {
+            padding: 0;
+        }
+        html, body {
+            overflow: hidden;
+        }
+    </style>
 {% endblock %}
 
 
