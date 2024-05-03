@@ -11,7 +11,7 @@ class PlatformSerializer(serializers.ModelSerializer):
 class SubmissionCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = SubmissionCategory
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'is_null']
 
 
 class SubmissionSerializer(serializers.ModelSerializer):
@@ -26,13 +26,14 @@ class SubmissionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Submission
-        fields = ['id', 'link', 'platform', 'platform_id', 'category', 'category_id', 'date']
+        fields = ['id', 'link', 'platform', 'platform_id', 'category', 'category_id', 'date',
+                  'report_count', 'was_exported']
 
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['id', 'username', 'email', 'rank', 'links_per_page']
+        fields = ['id', 'username', 'email', 'rank', 'links_per_page', 'sorting']
         extra_kwargs = {
             'email': {'required': True},  # Assuming email should be required for a user profile
         }

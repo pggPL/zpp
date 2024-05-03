@@ -20,7 +20,12 @@ urlpatterns = [
     path("change_category/<int:pk>/<str:category>", views.change_category_view, name="change_category"),
     path("change_category/<int:pk>/", views.remove_category_view, name="remove_category"),
     path("lookup/<str:phrase>", views.lookup_view, name="lookup"),
+
+    # exporting file
+    # url to view exporting screen
     path("export/", views.export_view, name="export"),
+    # url for actual file export
+    path("export_file/", views.export_file_view, name="export_file"),
 
     # adding input file
     path("add_file/", views.add_file_view, name="add_file"),
@@ -31,6 +36,10 @@ urlpatterns = [
     path("change_links_per_page/", views.change_links_per_page_view, name="change_links_per_page"),
     path("get_links_per_page/", views.get_links_per_page_view, name="get_links_per_page"),
     path("search_link_panel/", views.search_link_panel_view, name="search_link_panel"),
-    path("get_links_on_page/", views.get_links_on_page_view, name="get_links_on_page")
+    path("get_links_on_page/", views.get_links_on_page_view, name="get_links_on_page"),
+    path("sorting/", views.sorting, name="sorting"),
+
+    # api
+    path("current_user/", views.current_user_view, name="current_user"),
 
 ]

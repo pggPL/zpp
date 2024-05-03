@@ -25,7 +25,7 @@
     <div class="table-container">
         <table>
             <tr>
-                <th> Najpopularniejsze linki </th>
+                <th> Najczęściej zgłaszane linki </th>
                 <th> Liczba zgłoszeń </th>
             </tr>
             {% for link in most_popular_links %}
@@ -38,7 +38,7 @@
     </div>
     <script>
         window.onload = function() {
-            var links = document.querySelectorAll('a[id^="link_"]');
+            let links = document.querySelectorAll('a[id^="link_"]');
             links.forEach(function(link) {
                 link.textContent = truncateString(link.textContent, 45);
             });

@@ -9,6 +9,9 @@ class Submission(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     report_count = models.IntegerField(default=1)
 
+    # indicates if the submission was exported after filling the category
+    was_exported = models.BooleanField(default=False)
+
     def __str__(self):
         return self.platform.name + " - " + str(self.id)
 
@@ -22,6 +25,9 @@ class Platform(models.Model):
 
 class SubmissionCategory(models.Model):
     name = models.CharField(max_length=200, default="brak kategorii")
+
+    # This field (if true) tells that the category indicates "no category given"
+    is_null = models.BooleanField()
 
     def __str__(self):
         return self.name
@@ -40,7 +46,8 @@ class Profile(AbstractUser):
 
     links_per_page = models.IntegerField(default=10)
 
-    #sorting = models.CharField(max_length=10, default="Date Descending")
+
+    sorting = models.CharField(max_length=40, default='by_date');
 
     def get_links_per_page(self):
         return self.links_per_page

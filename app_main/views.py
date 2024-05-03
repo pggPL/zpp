@@ -22,7 +22,9 @@ from app_main.read_file import read_links_file, save_to_db
 import json
 from django.http import JsonResponse
 
-from app_main.serializers import SubmissionSerializer
+from app_main.serializers import SubmissionSerializer, ProfileSerializer
+
+from app_main.sorting import Sorting
 
 
 # decorator – require senior rank
@@ -50,7 +52,7 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return link_list_view(request)  # Redirect to homepage or other page
+            return link_panel_view(request)  # Redirect to homepage or other page
         else:
             # Invalid login
             return render(request, 'app_main/login.html', {'error': 'Niepoprawne dane logowania'})
@@ -170,7 +172,7 @@ def link_panel_view(request):
 
     for link in submissions:
         form = LinkForm1(instance=link)
-        context['links_with_forms'].append({"form": form, "link": link, "done": link.category is not None})
+        context['links_with_forms'].append({"form": form, "link": link})
     # sort links_with_forms by done
     # context['links_with_forms'].sort(key=lambda x: x['done'])
 
@@ -235,9 +237,9 @@ def change_password_view(request):
 def stats_view(request):
     context = {
         'links_number': len(Submission.objects.all()),
-        'links_without_the_cathegory': len(Submission.objects.filter(category__name='brak kategorii')),
-        'links_with_the_cathegory': len(Submission.objects.exclude(category__name='brak kategorii')),
-        'most_popular_links': Submission.objects.all().order_by('report_count')[:5]
+        'links_without_the_cathegory': len(Submission.objects.filter(category__is_null=True)),
+        'links_with_the_cathegory': len(Submission.objects.exclude(category__is_null=True)),
+        'most_popular_links': Submission.objects.all().order_by('-report_count')[:5]
     }
     return render(request, 'app_main/stats.html', context=context)
 
@@ -268,15 +270,38 @@ def lookup_view(request, phrase):
 
 @login_required
 def export_view(request):
+    with_categories = (Submission.objects.all().exclude(category__is_null=True))
+    with_categories_count = with_categories.count()
+
+    with_categories_not_exported = with_categories.filter(was_exported=False)
+    with_categories_not_exported_count = with_categories_not_exported.count()
+
+    return render(request, template_name='app_main/export.html',
+                  context={"with_categories_count": with_categories_count,
+                           "with_categories_not_exported_count": with_categories_not_exported_count})
+
+
+@login_required
+def export_file_view(request):
+    with_categories = (Submission.objects.all().exclude(category__is_null=True))
+
+    if request.GET.get("type") == "all":
+        to_export = with_categories
+    else:
+        # If the "all" was not specified, export only these not exported yet
+        to_export = with_categories.filter(was_exported=False)
+
+    updated = to_export.update(was_exported=True)
+    for link in to_export:
+        link.save()
+
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="links.txt"'
-
     output = ""
-    for link in Submission.objects.all():
-        if link.category is not None and link.category.name != "Brak Kategorii":
-            output += link.link + "(" + link.platform.name + ", " + link.category.name + ")\n"
-    response.content = output
+    for link in to_export:
+        output += f"{link.link}({link.platform.name}, {link.category.name})\n"
 
+    response.content = output
     return response
 
 
@@ -295,42 +320,45 @@ def get_links_per_page_view(request):
     return JsonResponse({"links_per_page": n_links})
 
 
+
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def sorting(request):
+    if request.method == "GET":
+        return JsonResponse(Sorting.get_sorting_types(), safe=False)
+    elif request.method == "POST":
+        data = json.loads(request.body)
+        print(data)
+        return JsonResponse("done")
+
+
 @login_required
 @api_view(['GET'])
 def search_link_panel_view(request):
     phrase = request.GET.get("phrase")
     links = Submission.objects.filter(Q(link__icontains=phrase) | Q(platform__name__icontains=phrase)).order_by('date')
-    # for link in links:
-    #     link.short_link = link.link[:50] + "..." if len(link.link) > 50 else link.link
-
-    # links = list(links)
-    # print(links)
-    # return search result
-
-    # json_links = serialize('json', links)
-    #
-    # print(json_links)
-    #
-    # links_as_dicts = [{"link": l.link, "short_link": l.short_link, "platform": l.platform.name, "date": l.date} for l in links]
-
-
     serializer = SubmissionSerializer(links, many=True)
 
     return Response(serializer.data)
 
-    # return JsonResponse()
-
-    # return render(request, 'app_main/lookup.html', {'links': links, 'phrase': phrase})
 
 @login_required
 @api_view(['GET'])
 def get_links_on_page_view(request):
-    submissions = Submission.objects.all().order_by('date')
-
+    submissions = Sorting.sort(Submission.objects.all(), request.user.sorting)
 
     page_number = request.GET.get('page')
     links_per_page = request.user.get_links_per_page()
 
     paginator = Paginator(submissions, links_per_page)
     serializer = SubmissionSerializer(paginator.get_page(page_number), many=True)
+    return Response(serializer.data)
+
+
+@login_required
+@api_view(['GET'])
+def current_user_view(request):
+    serializer = ProfileSerializer(request.user)
     return Response(serializer.data)

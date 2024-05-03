@@ -1,3 +1,8 @@
+:root {
+    --menu-bar-height: 52px;
+}
+
+
 body {
     font-family: Arial,
     sans-serif;
@@ -7,6 +12,7 @@ body {
 .menu-bar {
     background-color: #181818;
     overflow: hidden;
+    height: var(--menu-bar-height);
 }
 .menu-bar a {
     float: left;
@@ -116,11 +122,11 @@ select {
     border-right: 1px solid black;
     display: block;
     overflow: scroll;
-    height: 93vh;
+    height: calc(100vh - var(--menu-bar-height));
     scrollbar-width: none;
     -ms-overflow-style: none;
-    margin: 0;
     width: 100%;
+    box-sizing: border-box;
 }
 
 
@@ -133,20 +139,25 @@ html::-webkit-scrollbar {
   display: none;
 }
 
-html, body {
-    overflow: hidden;
-}
 
-
-.box > .right {
+#right-wrapper {
     grid-column: 2;
     grid-row: 1;
     overflow: scroll;
-    height: 93vh;
+    height: calc(100vh - var(--menu-bar-height));
 }
 
 #right {
-    height: 900px;
+    width: 100%;
+    height: 100%;
+}
+
+#spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
 }
 
 .one_link_panel {
@@ -161,26 +172,10 @@ html, body {
     box-sizing: border-box;
 }
 
-.one_link_panel > * {
-    text-align: center;
-    cursor: pointer;
-}
 
 .one_link_panel > form > select {
     width: 150px;
     height: auto;
-}
-
-.done {
-    background-color: #eefced;
-}
-
-.not_done {
-    background-color: #ffe7e7;
-}
-
-.last-clicked {
-    background-color: #dbe2e5;
 }
 
 input[type=button] {
@@ -192,6 +187,7 @@ input[type=button] {
     justify-content: center;
     align-items: center;
     margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 .page-link {
@@ -218,27 +214,7 @@ input[type=button] {
     transform: translate(-50%);
 }
 
-/***** link-panel-navbar *****/
-
-.link-panel-navbar {
-    padding: 15px;
-    height: 50px;
-    background-color: deepskyblue;
-    display: flex;
-}
-
-.search-bar {
-    width: 40%;
-}
 
 
-.link-panel-navbar-item {
-    margin: 10px;
-
-}
-
-#search {
-    width: 100%;
-}
 
 
