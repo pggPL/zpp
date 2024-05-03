@@ -1,5 +1,7 @@
 import openpyxl
 from app_main.models import Platform, Submission, SubmissionCategory
+import re
+
 
 def read_links_file(file):
     workbook = openpyxl.load_workbook(file)
@@ -11,14 +13,13 @@ def read_links_file(file):
         platform, link = row
         if platform is None or link is None:
             break
-        if {"platform": platform, "link": link} in new_data:
-            other_data.append({"platform": platform, "link": link})
-            continue
-        if Submission.objects.filter(link=link).exists():
-            other_data.append({"platform": platform, "link": link})
-            continue
 
-        new_data.append({"platform": platform, "link": link})
+        dict_row = {"platform": platform, "link": link}
+
+        if dict_row in new_data or Submission.objects.filter(link=link).exists():
+            other_data.append(dict_row)
+        else:
+            new_data.append(dict_row)
 
     return new_data, other_data
 
@@ -41,4 +42,18 @@ def save_to_db(data):
         # create link in database
         Submission.objects.get_or_create(link=link, platform=platform, category=category)
 
+
+def is_facebook_profile(url: str) -> bool:
+    # This pattern matches most popular profile url
+    pattern = r'https?://www\.facebook\.com/profile\.php\?id=([0-9]+)'
+
+    return bool(re.match(pattern, url))
+
+def is_twitter_profile(url: str) -> bool:
+    # Twitter profile names must contain between 1-15 alfa-numeric characters
+    # and underscores and can't start with the digit
+    # we assume that after '?' can be anything (which should be good enough)
+    pattern = r'https?://(www\.)?twitter\.com([a-zA-Z_][a-zA-Z0-9_]{0,14})\?.*'
+
+    return bool(re.match(pattern, url))
 
