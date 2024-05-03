@@ -32,6 +32,10 @@
         .link-column {
             overflow-wrap: break-word;
         }
+
+        .table-legend {
+            color:#f85e53;
+        }
     </style>
     <script>
         
@@ -60,6 +64,7 @@
     {% if new_links_preview or other_links_preview %}
         <div class = "hide_after_data_added">
             <h3 class = "after-preview-header mt-2 mb-2"> Dane, które zostaną dodane do bazy: </h3>
+            <p class="table-legend">Na czerwono oznaczono duplikaty oraz linki, które są już są w bazie.</p>
             <div class="d-flex justify-content-center">
                 <button id="submit-after-preview" class="d-inline-block me-2 mb-2 mt-2"> Zatwierdź </button>
                 <button id="cancel-after-preview" class="d-inline-block ms-2 mb-2 mt-2"> Anuluj </button>

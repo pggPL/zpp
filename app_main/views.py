@@ -63,7 +63,6 @@ def login_view(request):
 def get_links_on_page(page_number):
     pass
 
-
 @login_required
 def add_file_view(request):
     if request.method == 'POST':
