@@ -43,11 +43,19 @@ def save_to_db(data):
         Submission.objects.get_or_create(link=link, platform=platform, category=category)
 
 
+def is_profile(url: str) -> bool:
+    return is_facebook_profile(url) or is_twitter_profile(url)
+
+
 def is_facebook_profile(url: str) -> bool:
     # This pattern matches most popular profile url
     pattern = r'https?://www\.facebook\.com/profile\.php\?id=([0-9]+)'
 
-    return bool(re.match(pattern, url))
+    # This pattern matches where after .com/ there is [first name].[last name]
+    pattern2 = r'https?://www\.facebook\.com/[a-zA-Z]+\.[a-zA-Z]+'
+
+    return bool(re.match(pattern, url)) or bool(re.match(pattern2, url))
+
 
 def is_twitter_profile(url: str) -> bool:
     # Twitter profile names must contain between 1-15 alfa-numeric characters
@@ -56,4 +64,3 @@ def is_twitter_profile(url: str) -> bool:
     pattern = r'https?://(www\.)?twitter\.com([a-zA-Z_][a-zA-Z0-9_]{0,14})\?.*'
 
     return bool(re.match(pattern, url))
-
