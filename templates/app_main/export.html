@@ -8,12 +8,12 @@
     </div>
     
     <div class="d-flex justify-content-center">
-        <a href="{% url 'export_file' %}">
+        <a href="{% url 'export_file' %}" class="text-decoration-none">
         <button onclick="" class = "me-2"> 
             Eksportuj jeszcze niewyeksportowane. ({{ with_categories_not_exported_count }} pozycji)
         </button>
         </a>
-        <a href="{% url 'export_file' %}?type=all">
+        <a href="{% url 'export_file' %}?type=all" class="text-decoration-none">
         <button> Eksportuje wszystkie ({{ with_categories_count }} pozycji) </button>
         </a>
     </div>
