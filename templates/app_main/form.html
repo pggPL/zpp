@@ -8,8 +8,8 @@
     <form method="post">
         {% csrf_token %}
         {% for field in form %}
-            <div style="text-align: center">
-                {{ field.label_tag }}<br>
+            <div class="row d-flex justify-content-center" style="text-align: center">
+                {{ field.label_tag }}
                 {{ field }}
                 {% for error in field.errors %}
                     <p style="color: red">{{ error }}</p>
