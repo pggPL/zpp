@@ -44,13 +44,16 @@
                                 [[ sorting_mapper[s] ]]
                             </option>
                         </select>
-                        <select class="form-select" style="width: auto;" aria-label="Items per page"
+                        <select class="form-select me-2" style="width: auto;" aria-label="Items per page"
                                 v-model="selected_item" @change="onItemsPerPageChange">
                             <option value="5" >5 na stronie</option>
                             <option value="10">10 na stronie</option>
                             <option value="20">20 na stronie</option>
                             <option value="50">50 na stronie</option>
                         </select>
+                        <a href="/add_link/link_panel" class="btn btn-success">
+                            Dodaj link
+                        </a>
                     </div>
                 </div>
             </nav>
