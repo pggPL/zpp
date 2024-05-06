@@ -345,7 +345,20 @@
     async function showTwitterProfile(link) {
         document.getElementById('right').innerHTML = '<center><a class="twitter-timeline" href="' + link +
             '"></a> ' + '</center>';
+        
         await twttr.widgets.load()
+
+        // If the loading contents fails, the twitter-timeline element should have no children.
+        if (document.querySelector(".twitter-timeline").children.length === 0) {
+            document.getElementById("right").innerHTML = 
+                '<div style="display: flex; align-items: center; justify-content: center; height: 100%">' +
+                    '<div>Nie udało się załadować podglądu. Wyświetl' +
+                        ' <a href="' + link + '" target="new">link</a>' +
+                        ' w przeglądarce.' +
+                    '</div>' +
+                '</div>';
+        }
+
     }
 
     async function showTwitterPost(link) {
