@@ -9,22 +9,25 @@ function showDate(string_date) {
 
     const date = new Date(string_date);
 
-    // Formatowanie daty
     const formattedDate = date.toLocaleDateString('pl-PL', {
-        weekday: 'long', // pełna nazwa dnia tygodnia
-        year: 'numeric', // pełny rok
-        month: 'long', // pełna nazwa miesiąca
-        day: 'numeric' // dzień miesiąca
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
     });
 
-    // Formatowanie czasu
     const formattedTime = date.toLocaleTimeString('pl-PL', {
-        hour: '2-digit', // godzina (2 cyfry)
-        minute: '2-digit', // minuty (2 cyfry)
-        second: '2-digit' // sekundy (2 cyfry)
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
     });
 
     return `${formattedDate} ${formattedTime}`
 
+}
+
+function isTiktokVideo(url) {
+    const tiktok_video_regex = /^.*https:\/\/(?:m|www|vm)?\.?tiktok\.com\/(.*\b(?:(?:usr|v|embed|user|video)\/|\?shareId=|&item_id=)(\d+)|\w+)/;
+    return tiktok_video_regex.test(url);
 }
 

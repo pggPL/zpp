@@ -392,8 +392,6 @@
 
     async function show(link) {
         
-        const tiktok_video_regex = /^https?:\/\/(www\.)?tiktok\.com\/(@\w+\/video\/\d+|t\/\d+)$/;
-        
         // check whether link is facebook post
         if (link.includes('facebook.com/post')) {
             await showFacebookPost(link);
@@ -401,7 +399,7 @@
             await showTwitterPost(link);
         } else if (link.includes('twitter.com')) {
             await showTwitterProfile(link);
-        } else if (tiktok_video_regex.test(link)){
+        } else if (isTiktokVideo(link)){
             await showTiktokVideo(link);
         }
         else {
