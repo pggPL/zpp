@@ -41,7 +41,7 @@
             </tr>
             {% for link in most_popular_links %}
             <tr>
-                <td><a id="link_{{ forloop.counter }}" href="{{ link.url }}">{{ link.link }}</a></td>
+                <td><a id="link_{{ forloop.counter }}" href="{{ link.link }}">{{ link.link }}</a></td>
                 <td>{{ link.report_count }}</td>
             </tr>
             {% endfor %}
