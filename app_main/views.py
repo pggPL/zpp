@@ -39,7 +39,7 @@ def senior_required(view_func):
 
 
 def index(request):
-    # if user is not logger, show login screen
+    # if user is not logged in, show login screen
     if not request.user.is_authenticated:
         return login_view(request)
     return link_panel_view(request)
@@ -59,9 +59,6 @@ def login_view(request):
     else:
         return render(request, 'app_main/login.html')
 
-
-def get_links_on_page(page_number):
-    pass
 
 @login_required
 def add_file_view(request):
@@ -242,8 +239,8 @@ def stats_view(request):
     categories_dict.pop("brak kategorii", None)
     context = {
         'links_number': len(Submission.objects.all()),
-        'links_without_the_category': len(Submission.objects.filter(category__is_null=True)),
-        'links_with_the_category': len(Submission.objects.exclude(category__is_null=True)),
+        'links_without_the_cathegory': len(Submission.objects.filter(category__is_null=True)),
+        'links_with_the_cathegory': len(Submission.objects.exclude(category__is_null=True)),
         'most_popular_links': Submission.objects.all().order_by('-report_count')[:5],
         'category_counts': categories_dict,
     }
@@ -324,9 +321,6 @@ def change_links_per_page_view(request):
 def get_links_per_page_view(request):
     n_links = request.user.get_links_per_page()
     return JsonResponse({"links_per_page": n_links})
-
-
-
 
 
 @login_required
