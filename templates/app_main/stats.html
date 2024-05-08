@@ -1,7 +1,18 @@
 {% extends 'app_main/base.html' %}
 
+{% block head %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
 {% block content %}
-    <div class="table-container">
+<style>
+    .table-container {
+        margin-top: 30px;
+        margin-bottom: 30px;
+    }
+</style>
+
+<div class="table-container">
         <table>
             <tr>
                 <th> Statystyka </th>
@@ -13,11 +24,11 @@
             </tr>
             <tr>
                 <td> Liczba linków bez kategorii </td>
-                <td> {{ links_without_the_cathegory }} </td>
+                <td> {{ links_without_the_category }} </td>
             </tr>
             <tr>
                 <td> Liczba linków z kategorią </td>
-                <td> {{ links_with_the_cathegory }} </td>
+                <td> {{ links_with_the_category }} </td>
             </tr>
 
         </table>
@@ -36,6 +47,52 @@
             {% endfor %}
         </table>
     </div>
+    <canvas class="table-container" id="myBarChart"></canvas>
+    {{ category_counts|json_script:"category-chart-data" }}
+    <script>
+        var dataDict = JSON.parse(document.getElementById('category-chart-data').textContent);
+        var barLabels = Object.keys(dataDict);
+        var barValues = Object.values(dataDict);
+
+        var ctx = document.getElementById('myBarChart').getContext('2d');
+        var myBarChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: barLabels,
+                datasets: [{
+                    data: barValues,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Liczba linków w poszczególnych kategoriach',
+                        font: {
+                            size: 24
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 10
+                        },
+                        color: '#333'
+                    },
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    </script>
     <script>
         window.onload = function() {
             let links = document.querySelectorAll('a[id^="link_"]');
