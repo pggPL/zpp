@@ -239,8 +239,8 @@ def stats_view(request):
     categories_dict.pop("brak kategorii", None)
     context = {
         'links_number': len(Submission.objects.all()),
-        'links_without_the_cathegory': len(Submission.objects.filter(category__is_null=True)),
-        'links_with_the_cathegory': len(Submission.objects.exclude(category__is_null=True)),
+        'links_without_the_category': len(Submission.objects.filter(category__is_null=True)),
+        'links_with_the_category': len(Submission.objects.exclude(category__is_null=True)),
         'most_popular_links': Submission.objects.all().order_by('-report_count')[:5],
         'category_counts': categories_dict,
     }
