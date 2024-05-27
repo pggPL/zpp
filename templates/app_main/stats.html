@@ -2,6 +2,7 @@
 
 {% block head %}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -47,15 +48,17 @@
             {% endfor %}
         </table>
     </div>
-    <canvas class="table-container" id="myBarChart"></canvas>
+    <div>
+        <canvas class="table-container" id="categoryCountBarChart"></canvas>
+    </div>
     {{ category_counts|json_script:"category-chart-data" }}
     <script>
         var dataDict = JSON.parse(document.getElementById('category-chart-data').textContent);
         var barLabels = Object.keys(dataDict);
         var barValues = Object.values(dataDict);
 
-        var ctx = document.getElementById('myBarChart').getContext('2d');
-        var myBarChart = new Chart(ctx, {
+        var ctx = document.getElementById('categoryCountBarChart').getContext('2d');
+        var categoryCountBarChart = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: barLabels,
@@ -87,6 +90,48 @@
                         beginAtZero: true,
                         ticks: {
                             precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+    <canvas class="table-container" id="timeSeriesChart"></canvas>
+    <script>
+        const ctx2 = document.getElementById('timeSeriesChart').getContext('2d');
+        const chart2 = new Chart(ctx2, {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: 'Sample Data',
+                    data: [
+                        { x: '2023-03-01', y: 10 },
+                        { x: '2023-05-02', y: 15 },
+                        { x: '2023-06-03', y: 7 },
+                        { x: '2023-07-04', y: 20 }
+                    ],
+                    fill: false,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'month'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Value'
                         }
                     }
                 }
