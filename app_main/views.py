@@ -18,6 +18,7 @@ from app_main.models import Submission, Platform, Profile, SubmissionCategory
 from django.core.paginator import Paginator
 
 from app_main.read_file import read_links_file, save_to_db
+from app_main.stats import get_categories_dict, get_timechart_data
 
 import json
 from django.http import JsonResponse
@@ -231,18 +232,13 @@ def change_password_view(request):
 
 @login_required
 def stats_view(request):
-    categories = SubmissionCategory.objects.all()
-    categories_dict = {}
-    for category in categories:
-        categories_dict[category.name] = len(Submission.objects.filter(category=category))
-
-    categories_dict.pop("brak kategorii", None)
     context = {
         'links_number': len(Submission.objects.all()),
         'links_without_the_category': len(Submission.objects.filter(category__is_null=True)),
         'links_with_the_category': len(Submission.objects.exclude(category__is_null=True)),
         'most_popular_links': Submission.objects.all().order_by('-report_count')[:5],
-        'category_counts': categories_dict,
+        'category_counts': get_categories_dict(),
+        'time_history': get_timechart_data()
     }
     return render(request, 'app_main/stats.html', context=context)
 

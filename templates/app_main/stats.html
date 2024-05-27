@@ -2,7 +2,8 @@
 
 {% block head %}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@^2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@^1"></script>
 {% endblock %}
 
 {% block content %}
@@ -48,7 +49,7 @@
             {% endfor %}
         </table>
     </div>
-    <div>
+    <div style="height: 500px;">
         <canvas class="table-container" id="categoryCountBarChart"></canvas>
     </div>
     {{ category_counts|json_script:"category-chart-data" }}
@@ -68,6 +69,8 @@
                 }]
             },
             options: {
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     title: {
                         display: true,
@@ -97,25 +100,29 @@
         });
     </script>
     <canvas class="table-container" id="timeSeriesChart"></canvas>
+    {{ time_history|json_script:"time-series-chart-data" }}
     <script>
+        var dataList = JSON.parse(document.getElementById('time-series-chart-data').textContent);
+        luxon.Settings.defaultLocale = "pl";
+
         const ctx2 = document.getElementById('timeSeriesChart').getContext('2d');
         const chart2 = new Chart(ctx2, {
             type: 'line',
             data: {
                 datasets: [{
-                    label: 'Sample Data',
-                    data: [
-                        { x: '2023-03-01', y: 10 },
-                        { x: '2023-05-02', y: 15 },
-                        { x: '2023-06-03', y: 7 },
-                        { x: '2023-07-04', y: 20 }
-                    ],
+                    label: 'Liczba zgłoszeń w czasie',
+                    data: dataList,
                     fill: false,
                     borderColor: 'rgb(75, 192, 192)',
                     tension: 0.1
                 }]
             },
             options: {
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
                 scales: {
                     x: {
                         type: 'time',
@@ -124,14 +131,14 @@
                         },
                         title: {
                             display: true,
-                            text: 'Date'
+                            text: 'Data'
                         }
                     },
                     y: {
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Value'
+                            text: 'Liczba zgłoszeń'
                         }
                     }
                 }
