@@ -2,6 +2,8 @@
 
 {% block head %}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@^2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@^1"></script>
 {% endblock %}
 
 {% block content %}
@@ -41,21 +43,23 @@
             </tr>
             {% for link in most_popular_links %}
             <tr>
-                <td><a id="link_{{ forloop.counter }}" href="{{ link.url }}">{{ link.link }}</a></td>
+                <td><a id="link_{{ forloop.counter }}" href="{{ link.link }}">{{ link.link }}</a></td>
                 <td>{{ link.report_count }}</td>
             </tr>
             {% endfor %}
         </table>
     </div>
-    <canvas class="table-container" id="myBarChart"></canvas>
+    <div class="table-container" style="height: 300px;">
+        <canvas id="categoryCountBarChart"></canvas>
+    </div>
     {{ category_counts|json_script:"category-chart-data" }}
     <script>
         var dataDict = JSON.parse(document.getElementById('category-chart-data').textContent);
         var barLabels = Object.keys(dataDict);
         var barValues = Object.values(dataDict);
 
-        var ctx = document.getElementById('myBarChart').getContext('2d');
-        var myBarChart = new Chart(ctx, {
+        var ctx = document.getElementById('categoryCountBarChart').getContext('2d');
+        var categoryCountBarChart = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: barLabels,
@@ -65,6 +69,8 @@
                 }]
             },
             options: {
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     title: {
                         display: true,
@@ -87,6 +93,68 @@
                         beginAtZero: true,
                         ticks: {
                             precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+    <div class="table-container" style="height: 300px;">
+        <canvas id="timeSeriesChart"></canvas>
+    </div>
+    {{ time_history|json_script:"time-series-chart-data" }}
+    <script>
+        var dataList = JSON.parse(document.getElementById('time-series-chart-data').textContent);
+        luxon.Settings.defaultLocale = "pl";
+
+        const ctx2 = document.getElementById('timeSeriesChart').getContext('2d');
+        const chart2 = new Chart(ctx2, {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: 'Liczba zgłoszeń w czasie',
+                    data: dataList,
+                    fill: false,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Liczba zgłoszeń w czasie',
+                        font: {
+                            size: 24
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 10
+                        },
+                        color: '#333'
+                    },
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'month'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Data'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Liczba zgłoszeń'
                         }
                     }
                 }
