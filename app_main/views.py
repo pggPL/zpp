@@ -295,10 +295,10 @@ def export_file_view(request):
         link.save()
 
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="links.txt"'
-    output = ""
+    response['Content-Disposition'] = 'attachment; filename="links.csv"'
+    output = "Link,Platforma,Kategoria\n"
     for link in to_export:
-        output += f"{link.link}({link.platform.name}, {link.category.name})\n"
+        output += f"{link.link},{link.platform.name},{link.category.name}\n"
 
     response.content = output
     return response
