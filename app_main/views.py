@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from app_main.forms import FileUploadForm, ProfileForm, LinkForm1, LinkForm2, ChangePasswordForm
 import openpyxl
 
-from app_main.models import Submission, Platform, Profile, SubmissionCategory
+from app_main.models import Submission, Platform, Profile, SubmissionCategory, ProfileSubmission
 from django.core.paginator import Paginator
 
 from app_main.read_file import read_links_file, save_to_db
@@ -100,10 +100,8 @@ def confirm_add_file(request):
         save_to_db(data)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
-        # return render(request, "app_main/add_file.html", {"data_add_attempt": "failure"})
 
     return JsonResponse({'message': 'Data added successfully'}, status=200)
-    # return render(request, "app_main/add_file.html", {"data_add_attempt": "success"})
 
 
 @login_required
@@ -277,30 +275,48 @@ def export_view(request):
     with_categories_not_exported = with_categories.filter(was_exported=False)
     with_categories_not_exported_count = with_categories_not_exported.count()
 
+    profiles = (ProfileSubmission.objects.all())
+    profiles_count = profiles.count()
+
+    profiles_not_exported = profiles.filter(was_exported=False)
+    profiles_not_exported_count = profiles_not_exported.count()
+
     return render(request, template_name='app_main/export.html',
-                  context={"with_categories_count": with_categories_count,
-                           "with_categories_not_exported_count": with_categories_not_exported_count})
+        context={
+            "with_categories_count": with_categories_count,
+            "with_categories_not_exported_count": with_categories_not_exported_count,
+            "profiles_count": profiles_count,
+            "profiles_not_exported_count": profiles_not_exported_count
+        }
+    )
 
 
 @login_required
 def export_file_view(request):
-    with_categories = (Submission.objects.all().exclude(category__is_null=True))
+    with_categories = (Submission.objects.all().exclude(category__is_null=True)) \
+        if request.GET.get("type") == "posts" \
+        else (ProfileSubmission.objects.all())
 
-    if request.GET.get("type") == "all":
+    if request.GET.get("selection") == "all":
         to_export = with_categories
     else:
         # If the "all" was not specified, export only these not exported yet
         to_export = with_categories.filter(was_exported=False)
 
-    updated = to_export.update(was_exported=True)
+    to_export.update(was_exported=True)
     for link in to_export:
         link.save()
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="links.csv"'
-    output = "Link,Platforma,Kategoria\n"
-    for link in to_export:
-        output += f"{link.link},{link.platform.name},{link.category.name}\n"
+    if request.GET.get("type") == "posts":
+        output = "Link,Platforma,Kategoria\n"
+        for link in to_export:
+            output += f"{link.link},{link.platform.name},{link.category.name}\n"
+    else:
+        output = "Link,Platforma\n"
+        for link in to_export:
+            output += f"{link.link},{link.platform.name}\n"
 
     response.content = output
     return response

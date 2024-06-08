@@ -20,6 +20,8 @@ class ProfileSubmission(models.Model):
     platform = models.ForeignKey("Platform", on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
 
+    was_exported = models.BooleanField(default=False)
+
     def __str__(self):
         return self.platform.name + " - " + str(self.id)
 
