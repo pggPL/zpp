@@ -99,7 +99,6 @@ def confirm_add_file(request):
         data = json.loads(request.body)
         save_to_db(data)
     except Exception as e:
-        print(e)
         return JsonResponse({'error': str(e)}, status=400)
 
     return JsonResponse({'message': 'Data added successfully'}, status=200)
@@ -301,14 +300,11 @@ def export_file_view(request):
     if request.GET.get("selection") == "all":
         to_export = with_categories
     else:
-        # If the "all" was not specified, export only these not exported yet
-        # print(with_categories)
         to_export = with_categories.filter(was_exported=False)
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="links.csv"'
     if request.GET.get("type") == "posts":
-        # print(to_export)
         output = "Link,Platforma,Kategoria\n"
         for link in to_export:
             output += f"{link.link},{link.platform.name},{link.category.name}\n"
@@ -347,7 +343,6 @@ def sorting(request):
         return JsonResponse(Sorting.get_sorting_types(), safe=False)
     elif request.method == "POST":
         data = json.loads(request.body)
-        print(data)
         return JsonResponse("done")
 
 
