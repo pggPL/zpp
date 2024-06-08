@@ -17,17 +17,20 @@ def read_links_file(file):
             break
 
         dict_row = {"platform": platform, "link": link}
+        if not is_profile(link):
+            print(link)
+            print(Submission.objects.filter(link=link))
 
         if is_profile(link):
             if dict_row in new_profile_data or ProfileSubmission.objects.filter(link=link).exists():
                 other_profile_data.append(dict_row)
             else:
                 new_profile_data.append(dict_row)
-
-        if dict_row in new_data or Submission.objects.filter(link=link).exists():
+        elif dict_row in new_data or Submission.objects.filter(link=link).exists():
             other_data.append(dict_row)
         else:
             new_data.append(dict_row)
+    print(other_profile_data)
     return new_data, other_data, new_profile_data, other_profile_data
 
 
