@@ -8,6 +8,7 @@ class Submission(models.Model):
     category = models.ForeignKey("SubmissionCategory", on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     report_count = models.IntegerField(default=1)
+    done = models.BooleanField(default=False)
 
     # indicates if the submission was exported after filling the category
     was_exported = models.BooleanField(default=False)
