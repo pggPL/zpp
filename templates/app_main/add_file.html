@@ -36,6 +36,24 @@
         .table-legend {
             color:#f85e53;
         }
+
+        .dropbtn {
+            text-align: left;
+            width: 100%;
+        }
+
+        #post-links-preview, #profile-links-preview {
+            display: none;
+        }
+
+        .dropbtn span {
+            margin-right: 5px;
+            display: inline-block;
+        }
+
+        .dropbtn.active span {
+            transform: rotate(90deg);
+        }
     </style>
     <script>
         
@@ -69,25 +87,71 @@
                 <button id="submit-after-preview" class="d-inline-block me-2 mb-2 mt-2"> Zatwierdź </button>
                 <button id="cancel-after-preview" class="d-inline-block ms-2 mb-2 mt-2"> Anuluj </button>
             </div>
-            <table class = "links_table">
-            <tr>
-                <th class="platform-column">Platform</th>
-                <th>Link</th>
-            </tr>
-            {% for data_row in new_links_preview %}
-                <tr>
-                    <td class="platform-column">{{ data_row.platform }}</td> 
-                    <td class="link-column"> {{  data_row.link }}</td>
-                </tr>
-            {% endfor %}
-            {% for data_row in other_links_preview %}
-                <tr class="red">
-                    <td class="platform-column">{{ data_row.platform }}</td>
-                    <td class="link-column"> {{  data_row.link }}</td>
-                </tr>
-            {% endfor %}
-            </table>
+            <button id="post-btn" class="dropbtn"><span>&#9654;</span> Podgląd linków do postów</button>
+            <div id="post-links-preview">
+                <table id="post-table" class = "links_table">
+                    <tr>
+                        <th class="platform-column">Platforma</th>
+                        <th>Link</th>
+                    </tr>
+                    {% for data_row in new_links_preview %}
+                        <tr>
+                            <td class="platform-column">{{ data_row.platform }}</td> 
+                            <td class="link-column"> {{  data_row.link }}</td>
+                        </tr>
+                    {% endfor %}
+                    {% for data_row in other_links_preview %}
+                        <tr class="red">
+                            <td class="platform-column">{{ data_row.platform }}</td>
+                            <td class="link-column"> {{  data_row.link }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <button id="preview-btn" class="dropbtn"><span>&#9654;</span> Podgląd linków do profili</button>
+            <div id="profile-links-preview">
+                <table id="profile-table" class = "links_table">
+                    <tr>
+                        <th class="platform-column">Platforma</th>
+                        <th>Link</th>
+                    </tr>
+                    {% for data_row in new_profile_links_preview %}
+                        <tr>
+                            <td class="platform-column">{{ data_row.platform }}</td> 
+                            <td class="link-column"> {{  data_row.link }}</td>
+                        </tr>
+                    {% endfor %}
+                    {% for data_row in other_profile_links_preview %}
+                        <tr class="red">
+                            <td class="platform-column">{{ data_row.platform }}</td>
+                            <td class="link-column"> {{  data_row.link }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
         </div>
+        <script>
+            document.querySelector('#post-btn').addEventListener('click', function() {
+                var dropdownContent = document.getElementById("post-links-preview");
+                if (dropdownContent.style.display !== "block") {
+                    dropdownContent.style.display = "block";
+                    this.classList.add('active');
+                } else {
+                    dropdownContent.style.display = "none";
+                    this.classList.remove('active');
+                }
+            });
+
+            document.querySelector('#preview-btn').addEventListener('click', function() {
+                var dropdownContent = document.getElementById("profile-links-preview");
+                if (dropdownContent.style.display !== "block") {
+                    dropdownContent.style.display = "block";
+                    this.classList.add('active');
+                } else {
+                    dropdownContent.style.display = "none";
+                    this.classList.remove('active');
+                }
+            });
+        </script>
     {% endif %}
     
 {% endblock %}

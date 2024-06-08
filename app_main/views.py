@@ -68,12 +68,14 @@ def add_file_view(request):
         if form.is_valid():
             file = request.FILES['file']
             try:
-                new_data, other_data = read_links_file(file)
+                new_data, other_data, new_profile_data, other_profile_data = read_links_file(file)
 
                 context = {
                     'form': form,
                     'new_links_preview': new_data,
                     'other_links_preview': other_data,
+                    'new_profile_links_preview': new_profile_data,
+                    'other_profile_links_preview': other_profile_data,
                 }
 
                 return render(request, "app_main/add_file.html", context)

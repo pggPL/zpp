@@ -15,6 +15,13 @@ class Submission(models.Model):
     def __str__(self):
         return self.platform.name + " - " + str(self.id)
 
+class ProfileSubmission(models.Model):
+    link = models.CharField(max_length=200)
+    platform = models.ForeignKey("Platform", on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.platform.name + " - " + str(self.id)
 
 class Platform(models.Model):
     name = models.CharField(max_length=200)
