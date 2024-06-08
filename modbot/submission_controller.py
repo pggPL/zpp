@@ -21,7 +21,7 @@ class SubmissionsController:
         self.views = {}
         self.categories = []
 
-        self.n_submissions_shown_at_init = 10
+        self.n_submissions_shown_at_init = 7
 
     # loads content from db
     # and renders on the channels, assumes that given channels are already cleared
