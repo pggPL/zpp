@@ -1,7 +1,6 @@
 #!/usr/bin/bash
 
 handle_sigint() {
-    echo "Received SIGINT, sending SIGINT to the background process..."
     kill "$server_pid"
     wait "$server_pid"
     exit

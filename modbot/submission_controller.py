@@ -41,13 +41,14 @@ class SubmissionsController:
 
         # use submission id as view id
         view_id = submission.id
+        curr_category = await get_submission_category(submission)
 
         # display
         if submission.done:
             view = DoneSubmissionView(submission, self, view_id)
             channel = self.done_channel
         else:
-            view = PendingSubmissionView(submission, self, view_id)
+            view = PendingSubmissionView(submission, curr_category, self, view_id)
             channel = self.pending_channel
         await view.display(channel)
         # add to internal structure

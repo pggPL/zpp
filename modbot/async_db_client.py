@@ -1,3 +1,5 @@
+from typing import Callable
+
 from app_main.models import Submission, SubmissionCategory
 from asgiref.sync import sync_to_async
 async def mark_as_done_in_db(submission: Submission):
@@ -36,4 +38,10 @@ async def get_submission_category(submission: Submission) -> SubmissionCategory:
         return submission.category
 
     return await sync_to_async(db_action)()
+
+
+# accepts no arguments action to be made on db
+async def db(action: Callable):
+    return await sync_to_async(action)()
+
 

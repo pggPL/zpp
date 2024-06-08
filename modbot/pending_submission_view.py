@@ -3,16 +3,21 @@ import logging
 import discord
 from discord.ui import View, Select, Button
 
-from app_main.models import Submission
+from app_main.models import Submission, SubmissionCategory
+# from modbot.async_db_client import db
 
 
 class PendingSubmissionView:
 
-    def __init__(self, submission: Submission, controller, view_id: int):
+    def __init__(self, submission: Submission, submission_category: SubmissionCategory,
+                 controller, view_id: int):
         self.submission = submission
         self.controller = controller
         self.view_id = view_id
         self.categories = controller.categories
+
+        # pass the current submission category to avoid async db operation in init
+        self.submission_category = submission_category
 
         # for now use single discord View to handle button and category select
         self.view = View(timeout=None)
@@ -33,12 +38,13 @@ class PendingSubmissionView:
     def prepare_category_select(self):
         options = []
         for category in self.categories:
-            if category.is_null:
-                options.append(discord.SelectOption(label=category.name,
-                                                    value=category.id, default=True))
-            else:
-                options.append(discord.SelectOption(label=category.name,
-                                                    value=category.id))
+            new_option = discord.SelectOption(label=category.name, value=category.id)
+            # when making the menu mark the current category as default,
+            # so it can be initially displayed
+            if category.id == self.submission_category.id:
+                new_option.default = True
+            options.append(new_option)
+
 
         select = Select(options=options)
 
