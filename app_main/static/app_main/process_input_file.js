@@ -1,5 +1,4 @@
-function read_links_table() {
-    const table = document.querySelector(".links_table");
+function read_links_table(table) {
     const rows = table.getElementsByTagName("tr");
     const ret_arr = [];
 
@@ -12,6 +11,16 @@ function read_links_table() {
     return ret_arr;
 }
 
+function read_all_links() {
+    const post_table = document.getElementById("post-table");
+    const profile_table = document.getElementById("profile-table");
+
+    return {
+        "posts": read_links_table(post_table),
+        "profiles": read_links_table(profile_table)
+    }
+}
+
 // Delete all nodes with specified class
 function del_with_class(class_name) {
     let nodes_to_del = document.querySelectorAll("." + class_name)
@@ -22,7 +31,7 @@ function del_with_class(class_name) {
 }
 
 function submit_action() {
-    const links_read = read_links_table();
+    const links_read = read_all_links();
 
     fetch(confirm_add_file_url, {
         method: 'POST',

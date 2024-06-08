@@ -26,7 +26,8 @@ def fill_missing_dates(dates_dict):
 
 def get_timechart_data():
     dates_dict = get_basic_date_dict()
-    dates_dict = fill_missing_dates(dates_dict)
+    if dates_dict:
+        dates_dict = fill_missing_dates(dates_dict)
     res = []
     for date in dates_dict:
         res.append({
