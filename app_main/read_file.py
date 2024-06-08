@@ -68,10 +68,10 @@ def is_profile(url: str) -> bool:
 
 def is_facebook_profile(url: str) -> bool:
     # This pattern matches most popular profile url
-    pattern = r'https?://(www\.)?facebook\.com/profile\.php\?id=([0-9]+)'
+    pattern = r'https?://(www\.)?facebook\.com/profile\.php\?id=([0-9]+)(&comment_id=[a-zA-Z0-9%]+)?/?'
 
     # This pattern matches where after .com/ there is a profile name
-    pattern2 = r'https?://(www\.)?facebook\.com/[a-zA-Z0-9\.]+/?'
+    pattern2 = r'https?://(www\.)?facebook\.com/[a-zA-Z0-9\.]+(\?comment_id=[a-zA-Z0-9%]+)?/?'
 
     return bool(re.fullmatch(pattern, url)) or bool(re.fullmatch(pattern2, url))
 
