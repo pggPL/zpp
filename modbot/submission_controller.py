@@ -3,6 +3,7 @@ import logging
 import discord
 from asgiref.sync import sync_to_async
 
+from modbot.load_more_view import LoadMoreView
 from modbot.pending_submission_view import PendingSubmissionView
 from modbot.done_submission_view import DoneSubmissionView
 
@@ -22,7 +23,7 @@ class SubmissionsController:
         self.categories = []
 
         # tells how many done submissions and pending submissions load at init
-        self.n_submissions_shown_at_init = 5
+        self.n_submissions_shown_at_init = 2
 
     # loads content from db
     # and renders on the channels, assumes that given channels are already cleared
@@ -35,7 +36,6 @@ class SubmissionsController:
         pending_submissions = await db(lambda: list(Submission.objects.filter(done=False)))
         done_submissions = await db(lambda: list(Submission.objects.filter(done=True)))
 
-
         # load submissions from db and display them
         # submissions = await get_submissions_from_db()
 
@@ -46,6 +46,8 @@ class SubmissionsController:
         for s in done_submissions[:self.n_submissions_shown_at_init]:
             await self.add_submission(s)
 
+        load_more_view = LoadMoreView(self)
+        await load_more_view.display(self.pending_channel)
 
     async def add_submission(self, submission: Submission):
 
@@ -65,11 +67,33 @@ class SubmissionsController:
         self.views[view_id] = view
 
     # Events
+
+    async def load_more_clicked(self, interaction: discord.Interaction):
+        pending_submissions = \
+            await db(lambda: list(Submission.objects.filter(done=False)))
+
+        # finish with no response
+        await interaction.response.defer()
+        # delete the message that sent the interaction
+        await interaction.message.delete()
+
+        # filtered out these already showed
+        filtered = list(filter
+                        (lambda s: s.id not in self.views.keys(),
+                         pending_submissions)
+                        )
+
+        for sub in filtered[:self.n_submissions_shown_at_init]:
+            await self.add_submission(sub)
+
+        # show new load more view after new submissions are loaded
+        load_more_view = LoadMoreView(self)
+        await load_more_view.display(self.pending_channel)
+
     async def on_done_clicked(self, interaction: discord.Interaction,
                               view: PendingSubmissionView):
         # update database
         await mark_as_done_in_db(view.submission)
-
 
         # finish with no response
         await interaction.response.defer()
@@ -93,4 +117,3 @@ class SubmissionsController:
         await change_submission_category_in_db(view.submission,
                                                category_id=select.values[0])
         await interaction.response.defer()
-

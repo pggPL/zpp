@@ -4,6 +4,8 @@ import discord
 from discord.ui import View, Select, Button
 
 from app_main.models import Submission, SubmissionCategory
+
+
 # from modbot.async_db_client import db
 
 
@@ -27,7 +29,7 @@ class PendingSubmissionView:
         self.prepare_done_button()
 
     def prepare_done_button(self):
-        button = Button(label="mark as done", style=discord.ButtonStyle.green)
+        button = Button(label="mark as done", style=discord.ButtonStyle.green, row=2)
 
         async def callback(interaction):
             await self.controller.on_done_clicked(interaction, self)
@@ -45,8 +47,7 @@ class PendingSubmissionView:
                 new_option.default = True
             options.append(new_option)
 
-
-        select = Select(options=options)
+        select = Select(options=options, row=1)
 
         async def callback(interaction):
             await self.controller.on_category_select(interaction, select, self)
@@ -56,4 +57,4 @@ class PendingSubmissionView:
         self.view.add_item(select)
 
     async def display(self, channel):
-        await channel.send(content=f"\nlink: {self.submission.link}", view=self.view)
+        await channel.send(content=f"\u200B\nlink: {self.submission.link}", view=self.view)
