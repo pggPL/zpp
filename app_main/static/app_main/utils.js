@@ -10,7 +10,6 @@ function showDate(string_date) {
     const date = new Date(string_date);
 
     const formattedDate = date.toLocaleDateString('pl-PL', {
-        weekday: 'long',
         year: 'numeric',
         month: 'long',
         day: 'numeric'
