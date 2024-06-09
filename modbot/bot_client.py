@@ -15,8 +15,18 @@ class BotClient:
 
     @classmethod
     def add_submission(cls, submission: Submission):
-        task = asyncio.run_coroutine_threadsafe(cls.bot_object.add_new_submission(submission), cls.bot_object.loop)
+        task = asyncio.run_coroutine_threadsafe(
+            cls.bot_object.add_new_submission(submission), cls.bot_object.loop)
         return task.result()
+
+    @classmethod
+    def update_submission(cls, submission: Submission):
+        # tell bot controller to update view of the given submission
+        # if it's currently displayed
+        task = asyncio.run_coroutine_threadsafe(
+            cls.bot_object.submissions_controller.update_view(submission), cls.bot_object.loop)
+        return task.result()
+
 
     @classmethod
     def load_token(cls):

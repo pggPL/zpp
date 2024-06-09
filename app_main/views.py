@@ -26,6 +26,7 @@ from django.http import JsonResponse
 from app_main.serializers import SubmissionSerializer, ProfileSerializer
 
 from app_main.sorting import Sorting
+from modbot.bot_client import BotClient
 
 
 # decorator – require senior rank
@@ -248,6 +249,10 @@ def change_category_view(request, pk, category):
     link = get_object_or_404(Submission, pk=pk)
     link.category = SubmissionCategory.objects.get(id=category)
     link.save()
+
+    # When category was changed on website, tell the bot to update it
+    BotClient.update_submission(link)
+
     return HttpResponse("done")
 
 

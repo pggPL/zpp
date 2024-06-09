@@ -18,3 +18,4 @@ class DoneSubmissionView:
                               color=discord.Color.blue())
         embed.add_field(name="Category", value=submission_category.name, inline=False)
         await channel.send(embed=embed)
+        await channel.send("\u200B")

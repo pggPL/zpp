@@ -14,7 +14,7 @@ class LoadMoreView:
         button = Button(label="load more", style=discord.ButtonStyle.blurple)
 
         async def callback(interaction: discord.Interaction):
-            await self.controller.load_more_clicked(interaction)
+            await self.controller.on_load_more_clicked(interaction)
 
         button.callback = callback
         self.view.add_item(button)

@@ -6,7 +6,7 @@ from discord.ui import View, Select, Button
 from app_main.models import Submission, SubmissionCategory
 
 
-# from modbot.async_db_client import db
+from modbot.async_db_client import *
 
 
 class PendingSubmissionView:
@@ -17,6 +17,9 @@ class PendingSubmissionView:
         self.controller = controller
         self.view_id = view_id
         self.categories = controller.categories
+
+        # save the view message here when the view is rendered
+        self.message = None
 
         # pass the current submission category to avoid async db operation in init
         self.submission_category = submission_category
@@ -57,4 +60,19 @@ class PendingSubmissionView:
         self.view.add_item(select)
 
     async def display(self, channel):
-        await channel.send(content=f"\u200B\nlink: {self.submission.link}", view=self.view)
+        # save the message
+        self.message = \
+            await channel.send(content=f"\u200B\nlink: {self.submission.link}", view=self.view)
+
+    async def update(self, submission):
+        self.submission = submission
+        self.submission_category = await get_submission_category(submission)
+
+        # prepare new view after updating submission and category
+        self.view = View(timeout=None)
+        self.prepare_category_select()
+        self.prepare_done_button()
+
+        # update the message
+        await self.message.edit(view=self.view)
+

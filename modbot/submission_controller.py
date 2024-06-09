@@ -49,6 +49,16 @@ class SubmissionsController:
         load_more_view = LoadMoreView(self)
         await load_more_view.display(self.pending_channel)
 
+    async def update_view(self, submission: Submission):
+        # find the view with id of edited submission
+        submission_view = self.views.get(submission.id)
+
+        # If the view was found, update it
+        if submission_view is not None:
+            await submission_view.update(submission)
+
+
+
     async def add_submission(self, submission: Submission):
 
         # use submission id as view id
@@ -68,7 +78,7 @@ class SubmissionsController:
 
     # Events
 
-    async def load_more_clicked(self, interaction: discord.Interaction):
+    async def on_load_more_clicked(self, interaction: discord.Interaction):
         pending_submissions = \
             await db(lambda: list(Submission.objects.filter(done=False)))
 

@@ -282,7 +282,6 @@
                 }
                 
                 const onCategoryChange = (link) => {
-
                     // Change category manually, because only category id updates automatically
                     // Find category by id and copy it to the link.category field using {...  } syntax
                     link.category = {...categoryFromId(categories.value, link.category.id)};
