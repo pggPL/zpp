@@ -60,8 +60,11 @@ class SubmissionsController:
         # update database
         await mark_as_done_in_db(view.submission)
 
-        # finish interaction
-        await interaction.response.edit_message(content="done", view=None)
+
+        # finish with no response
+        await interaction.response.defer()
+        # delete the message that sent the interaction
+        await interaction.message.delete()
 
         # delete pending submission view and add done submission view and render it
         view_id = view.view_id
