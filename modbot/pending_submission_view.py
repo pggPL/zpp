@@ -56,4 +56,4 @@ class PendingSubmissionView:
         self.view.add_item(select)
 
     async def display(self, channel):
-        await channel.send(content=f"link: {self.submission.link}", view=self.view)
+        await channel.send(content=f"\nlink: {self.submission.link}", view=self.view)

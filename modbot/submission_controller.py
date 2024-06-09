@@ -21,7 +21,8 @@ class SubmissionsController:
         self.views = {}
         self.categories = []
 
-        self.n_submissions_shown_at_init = 7
+        # tells how many done submissions and pending submissions load at init
+        self.n_submissions_shown_at_init = 5
 
     # loads content from db
     # and renders on the channels, assumes that given channels are already cleared
@@ -30,12 +31,21 @@ class SubmissionsController:
         # load categories - must happen before displaying submissions
         self.categories = await get_categories_from_db()
 
+        # make db operations using a wrapper and convert to lists
+        pending_submissions = await db(lambda: list(Submission.objects.filter(done=False)))
+        done_submissions = await db(lambda: list(Submission.objects.filter(done=True)))
+
+
         # load submissions from db and display them
-        submissions = await get_submissions_from_db()
+        # submissions = await get_submissions_from_db()
 
         # show only part of submissions during init
-        for s in submissions[:self.n_submissions_shown_at_init]:
+        for s in pending_submissions[:self.n_submissions_shown_at_init]:
             await self.add_submission(s)
+
+        for s in done_submissions[:self.n_submissions_shown_at_init]:
+            await self.add_submission(s)
+
 
     async def add_submission(self, submission: Submission):
 
