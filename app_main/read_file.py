@@ -18,15 +18,23 @@ def read_links_file(file):
 
         dict_row = {"platform": platform, "link": link}
 
-        if is_profile(link):
-            if dict_row in new_profile_data or ProfileSubmission.objects.filter(link=link).exists():
-                other_profile_data.append(dict_row)
+        if not is_profile(link):
+            if dict_row in new_data or Submission.objects.filter(link=link).exists():
+                other_data.append(dict_row)
             else:
-                new_profile_data.append(dict_row)
-        elif dict_row in new_data or Submission.objects.filter(link=link).exists():
-            other_data.append(dict_row)
+                new_data.append(dict_row)
+
+        if is_profile(link):
+            profile = dict_row
         else:
-            new_data.append(dict_row)
+            extract = extract_twitter_profile(link)
+            if extract:
+                profile = {"platform": "Twitter", "link": extract}
+    
+        if profile and profile in new_profile_data or ProfileSubmission.objects.filter(link=link).exists():
+            other_profile_data.append(profile)
+        else:
+            new_profile_data.append(profile)
 
     return new_data, other_data, new_profile_data, other_profile_data
 
@@ -60,7 +68,8 @@ def save_to_db(data):
 
 
 def is_profile(url: str) -> bool:
-    return is_facebook_profile(url) or is_twitter_profile(url)
+    return is_facebook_profile(url) or is_twitter_profile(url) \
+              or is_youtube_profile(url)
 
 
 def is_facebook_profile(url: str) -> bool:
@@ -78,3 +87,17 @@ def is_twitter_profile(url: str) -> bool:
     pattern = r'https?://(www\.)?(twitter|x)\.com/([a-zA-Z0-9_]{1,15})/?'
 
     return bool(re.fullmatch(pattern, url))
+
+def is_youtube_profile(url: str) -> bool:
+    pattern = r'https?://(www\.)?youtube\.com/channel/[a-zA-Z0-9_-]+/?'
+
+    pattern2 = r'https?://(www\.)?youtube\.com/@[a-z0-9]+/?'
+
+    return bool(re.fullmatch(pattern, url)) or bool(re.fullmatch(pattern2, url))
+
+def extract_twitter_profile(url: str) -> str:
+    pattern = r'(https?://(www\.)?(twitter|x)\.com/([a-zA-Z0-9_]{1,15}))(\?|/status).*'
+
+    match = re.fullmatch(pattern, url)
+    if match:
+        return match.group(1)
