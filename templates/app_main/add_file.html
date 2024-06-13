@@ -1,12 +1,16 @@
 {% extends 'app_main/base.html' %}
 {% load static %}
 
-{% block head %}
-    <link rel="stylesheet" href = {% static "app_main/read_file_styles.css" %} >
-{% endblock %}
 
 {% block content %}
     <style>
+        .after-preview-header {
+            left: 50%;
+            transform: translate(-50%);
+            width: fit-content;
+            position: relative;
+        }
+        
         tr.red {
             background-color: #fc6f65;
         }
@@ -128,10 +132,11 @@
                         </tr>
                     {% endfor %}
                 </table>
+            </div>
         </div>
         <script>
             document.querySelector('#post-btn').addEventListener('click', function() {
-                var dropdownContent = document.getElementById("post-links-preview");
+                let dropdownContent = document.getElementById("post-links-preview");
                 if (dropdownContent.style.display !== "block") {
                     dropdownContent.style.display = "block";
                     this.classList.add('active');
@@ -142,7 +147,7 @@
             });
 
             document.querySelector('#preview-btn').addEventListener('click', function() {
-                var dropdownContent = document.getElementById("profile-links-preview");
+                let dropdownContent = document.getElementById("profile-links-preview");
                 if (dropdownContent.style.display !== "block") {
                     dropdownContent.style.display = "block";
                     this.classList.add('active');

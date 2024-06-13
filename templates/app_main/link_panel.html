@@ -22,7 +22,7 @@
     
     
     <div id="fb-root"></div>
-<script async defer crossorigin="anonymous" src="https://connect.facebook.net/pl_PL/sdk.js#xfbml=1&version=v18.0" nonce="4yZKh3fW"></script>
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/pl_PL/sdk.js#xfbml=1&version=v18.0" nonce="4yZKh3fW"></script>
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     
@@ -100,7 +100,8 @@
                     </tbody>
                 </table>
             </div>
-            <div class="pagination">
+            {# show pagination only when there is no search input #}
+            <div v-if="search_input.length === 0" class="pagination">
                 {% if links_with_forms.has_previous %}
                     <a href="?page=1" class="page-link">&laquo; pierwsza</a>
                     <a href="?page={{ links_with_forms.previous_page_number }}" class="page-link">< poprzednia</a>
@@ -127,9 +128,6 @@
             <div :class="{'d-none' : show_spinner}" class="right" id="right"></div>
 
         </div>
-    
-{#        <div class="right" id="right"></div>#}
-    
     </div>
 
     <script type="module">
@@ -174,9 +172,7 @@
             })
         }
         
-        /** @param {Object[]} categories vue object with an array of objects representing categories
-         *  @param {number} id
-         *  @returns {Object} */
+        
         function categoryFromId(categories, id) {
             return categories.find((elem) => {return elem.id === id});
         }
@@ -260,9 +256,7 @@
                 const delLink = (link) => {
                     if (confirm("Czy na pewno chcesz usunąć link?")) {
                         axios.get("/delete_link/" + link.id +"/link_panel")
-                            .then( (response) => {
-                                link.deleted = true;    
-                            })
+                            .then( _ => { link.deleted = true; })
                             .catch((error) => {console.error("Failed to delete link", error)})
                     }
                 }
@@ -317,7 +311,7 @@
                     axios.patch(`/api/profiles/${profile.value.id}/`, {
                         sorting: profile.value.sorting
                     })
-                        .then(response => window.location.href = link_panel_url)
+                        .then(_ => window.location.href = link_panel_url)
                         .catch(error => console.log("failed to change sorting", error));
                 }
                 

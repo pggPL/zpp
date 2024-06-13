@@ -171,8 +171,6 @@ def link_panel_view(request):
     for link in submissions:
         form = LinkForm1(instance=link)
         context['links_with_forms'].append({"form": form, "link": link})
-    # sort links_with_forms by done
-    # context['links_with_forms'].sort(key=lambda x: x['done'])
 
     # paginacja
     paginator = Paginator(context['links_with_forms'], request.user.get_links_per_page())
@@ -196,14 +194,14 @@ def delete_link_view(request, pk, action):
 
 @login_required
 def edit_link_view(request, pk, action):
-    obiekt = get_object_or_404(Submission, pk=pk)
+    object_ = get_object_or_404(Submission, pk=pk)
     if request.method == "POST":
-        form = LinkForm2(request.POST, instance=obiekt)
+        form = LinkForm2(request.POST, instance=object_)
         if form.is_valid():
             form.save()
             return redirect(action)
     else:
-        form = LinkForm2(instance=obiekt)
+        form = LinkForm2(instance=object_)
     return render(request, 'app_main/form.html', {'form': form, 'name': 'Edytuj link'})
 
 
