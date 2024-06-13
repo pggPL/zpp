@@ -3,12 +3,8 @@ import asyncio
 
 from discord.ext import commands
 
-import logging
-
 from app_main.models import Submission
 from modbot.submission_controller import SubmissionsController
-
-logging.basicConfig(level=logging.INFO)
 
 
 # function to clear messages more slowly to avoid hitting discord
@@ -51,18 +47,6 @@ class ModBot(commands.Bot):
             if channel is not None:
                 await channel.send(message)
 
-    async def print_hi(self):
-        for guild in self.guilds:
-            channel = discord.utils.get(guild.text_channels, name=self.pending_channel_name)
-            if channel is not None:
-                await channel.send("Hi from modbot!")
-
-    async def on_message(self, message):
-        if message.author.bot:
-            return
-
-        await self.print_hi()
-
     async def add_new_submission(self, submission: Submission):
         await self.submissions_controller.add_submission(submission)
 
@@ -81,6 +65,3 @@ class ModBot(commands.Bot):
 
         # make the controller load data form db and render it
         await self.submissions_controller.init_from_db()
-
-
-

@@ -263,14 +263,6 @@ def remove_category_view(request, pk):
 
 
 @login_required
-def lookup_view(request, phrase):
-    links = Submission.objects.filter(Q(link__icontains=phrase) | Q(platform__name__icontains=phrase)).order_by('date')
-    for link in links:
-        link.short_link = link.link[:50] + "..." if len(link.link) > 50 else link.link
-    return render(request, 'app_main/lookup.html', {'links': links, 'phrase': phrase})
-
-
-@login_required
 def export_view(request):
     with_categories = (Submission.objects.all().exclude(category__is_null=True))
     with_categories_count = with_categories.count()

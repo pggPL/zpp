@@ -52,6 +52,8 @@
                             <option value="10">10 </option>
                             <option value="20">20 </option>
                             <option value="50">50</option>
+                            <option value="100">100</option>
+                            <option value="300">300</option>
                         </select>
                         <a href="/add_link/link_panel" class="btn btn-success">
                             Dodaj link
@@ -144,7 +146,6 @@
                         throw new Error("Network response was not ok.")
                     }
                 }).then(data => {
-                    console.log(data["links_per_page"])
                     selected_item.value = data["links_per_page"]
 
             }).catch(error => {
@@ -172,22 +173,19 @@
             })
         }
         
-        
         function categoryFromId(categories, id) {
             return categories.find((elem) => {return elem.id === id});
         }
         
         function getSortingTypes(sorting_types) {
             axios.get("/sorting/")
-                .then(response => { sorting_types.value = response.data;
-                console.log(response.data)})
+                .then(response => { sorting_types.value = response.data; })
                 .catch(error => { console.error("Failed loading sorting types. ", error)})
         }
 
         function getProfile(profile) {
             axios.get(current_user_url)
-                .then(response => {profile.value = response.data;
-                console.log("here", response.data)})
+                .then(response => {profile.value = response.data; })
                 .catch(error => {console.error("Failed to get current user.", error)})
         }
         
@@ -197,15 +195,10 @@
                 
                 // Model for selecting links per page count
                 const selected_item = ref(0);
-                
                 const search_input = ref("");
-                
                 const categories = ref(null);
-                
                 const sorting_types = ref(null);
-                
                 const profile = ref({sorting: "loading..."});
-                
                 const show_spinner = ref(false);
                 
                 // Indicates the selected link (the one which preview loads on the right)
@@ -219,35 +212,25 @@
                     by_date: "od najstarszych", by_link: "linki alfabetycznie"})
                 
                 
-                
                 const links_to_show_computed = computed(() => {
                     return links_to_show.value.filter(elem => !elem.deleted);
                 })
 
-
-                // Load categories
+                // Load data from the server
                 getCategories(categories)
-                
-                // Get sorting data
-                // getCurrentSorting(current_sorting);
                 getSortingTypes(sorting_types);
-
                 getProfile(profile);
-
                 
-
                 
                 // Download normal links and save them to links_to_show and normal links variables
                 axios.get(get_links_on_page_url + "?page=" + page_number)
                     .then(response => {
-                        console.log(response.data);
                         preprocessLinks(response.data);
                         links_to_show.value = response.data;
                         normal_links.value = response.data;
                     })
                     .catch(error => {console.log("Error getting links to show on current page", error)})
-
-
+                
                 
                 // Download the number of links per page from the server
                 // and fill the variable selected_item to change form view
@@ -280,7 +263,7 @@
                     // Find category by id and copy it to the link.category field using {...  } syntax
                     link.category = {...categoryFromId(categories.value, link.category.id)};
                     axios.post(change_category_url(link.id, link.category.id))
-                        .then(response => { console.log(response.data); })
+                        .then(_ => { })
                         .catch(error => {console.error("Error during changing category", error)})
                 }
                 
@@ -299,7 +282,6 @@
                             preprocessLinks(response.data);
                             search_results.value = response.data;
                             links_to_show.value = response.data;
-                            console.log(response.data);
                         })
                         .catch(error => {
                             console.error("Error downloading search result.", error);
@@ -307,17 +289,15 @@
                 }
                 
                 const onSortingChange = () => {
-                    console.log("after_change:", profile.value.sorting);
                     axios.patch(`/api/profiles/${profile.value.id}/`, {
                         sorting: profile.value.sorting
                     })
                         .then(_ => window.location.href = link_panel_url)
-                        .catch(error => console.log("failed to change sorting", error));
+                        .catch(error => console.error("failed to change sorting", error));
                 }
                 
                 
                 const onItemsPerPageChange = () => {
-                    console.log("item has changed: " + selected_item.value)
                     window.location.href = `${change_links_per_page_url}?new_count=${selected_item.value}`
                 }
                 
@@ -408,9 +388,7 @@
             window.location.href = "/delete_link/" + id +"/link_panel";
         }
     }
-
-
-    
+        
     </script>
 
     <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>

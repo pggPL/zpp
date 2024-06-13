@@ -2,6 +2,9 @@ from typing import Callable
 
 from app_main.models import Submission, SubmissionCategory
 from asgiref.sync import sync_to_async
+
+# module enabling making database operations from async context
+
 async def mark_as_done_in_db(submission: Submission):
     def db_action():
         submission.done = True

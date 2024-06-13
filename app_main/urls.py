@@ -19,7 +19,6 @@ urlpatterns = [
     path("stats/", views.stats_view, name="stats"),
     path("change_category/<int:pk>/<str:category>", views.change_category_view, name="change_category"),
     path("change_category/<int:pk>/", views.remove_category_view, name="remove_category"),
-    path("lookup/<str:phrase>", views.lookup_view, name="lookup"),
 
     # exporting file
     # url to view exporting screen

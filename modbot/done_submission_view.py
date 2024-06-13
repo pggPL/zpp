@@ -19,16 +19,13 @@ class DoneSubmissionView:
         embed.add_field(name="Category", value=submission_category.name, inline=False)
         return embed
 
-    # for now no interactions
+    # Just display data, no interactions
     async def display(self, channel):
-        # submission_category = await get_submission_category(self.submission)
-        # embed = discord.Embed(title=f"Submission", description=self.submission.link,
-        #                       color=discord.Color.blue())
-        # embed.add_field(name="Category", value=submission_category.name, inline=False)
         embed = await self.make_message_embed()
         self.message = await channel.send(embed=embed)
         await channel.send("\u200B")
 
+    # update the submission object and display data
     async def update(self, submission: Submission):
         self.submission = submission
         embed = await self.make_message_embed()
