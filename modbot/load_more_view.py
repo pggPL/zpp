@@ -6,7 +6,7 @@ class LoadMoreView:
 
     def __init__(self, controller):
         self.controller = controller
-        self.view = View()
+        self.view = View(timeout=None)
 
         self.prepare_load_more_button()
 
